@@ -18,9 +18,5 @@ export default function Home() {
     }
   }, [router, isAuthenticated, loading]);
 
-  return (
-    <div className="flex h-screen items-center justify-center bg-gray-950 font-black text-indigo-500 uppercase tracking-[0.5em] animate-pulse">
-      Initialing Secure Session...
-    </div>
-  );
+  return null;
 }
