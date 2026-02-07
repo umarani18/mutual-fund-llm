@@ -1,8 +1,21 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "./*"
+      ]
+    },
+    "jsx": "preserve",
+    "checkJs": true
   },
-  "include": ["next.config.js", "**/*.js", "**/*.jsx"]
+  "exclude": [
+    "../node_modules",
+    ".next"
+  ],
+  "include": [
+    "next.config.js",
+    "**/*.js",
+    "**/*.jsx"
+  ]
 }
