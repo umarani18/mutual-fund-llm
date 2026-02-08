@@ -5,11 +5,11 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const ThemeContext = createContext(undefined);
 
 export function ThemeProvider({ children }) {
-    const [theme, setTheme] = useState('dark');
+    const [theme, setTheme] = useState('light');
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        const savedTheme = sessionStorage.getItem('theme') || 'dark';
+        const savedTheme = sessionStorage.getItem('theme') || 'light';
         setTheme(savedTheme);
         document.documentElement.classList.toggle('dark', savedTheme === 'dark');
         setMounted(true);
