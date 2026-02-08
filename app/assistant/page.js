@@ -10,8 +10,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { History, ChevronRight } from 'lucide-react';
+import DisclaimerModal from '@/components/ui/DisclaimerModal';
 
 export default function AssistantPage() {
+    const [showDisclaimer, setShowDisclaimer] = useState(false);
     const {
         messages,
         loading: chatLoading,
@@ -31,6 +33,18 @@ export default function AssistantPage() {
     const router = useRouter();
 
     useEffect(() => {
+        const accepted = sessionStorage.getItem('disclaimerAccepted');
+        if (!accepted && isAuthenticated) {
+            setShowDisclaimer(true);
+        }
+    }, [isAuthenticated]);
+
+    const handleCloseDisclaimer = () => {
+        sessionStorage.setItem('disclaimerAccepted', 'true');
+        setShowDisclaimer(false);
+    };
+
+    useEffect(() => {
         if (!authLoading && !isAuthenticated) {
             router.push('/login');
         }
@@ -40,7 +54,7 @@ export default function AssistantPage() {
         return (
             <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-gray-950 space-y-4">
                 <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                <div className="font-black uppercase tracking-widest text-indigo-600 animate-pulse text-xs">Initializing Analytical Engine...</div>
+                <div className="font-black uppercase tracking-widest text-indigo-600 animate-pulse text-xs">Initializing Learning Simulator...</div>
             </div>
         );
     }
@@ -73,13 +87,13 @@ export default function AssistantPage() {
                                         <span className="text-3xl">✨</span>
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <h2 className="text-xl font-sans font-semibold text-gray-900 dark:text-white tracking-tight leading-tight text-center">
+                                <div className="space-y-3 text-center">
+                                    <h2 className="text-xl font-sans font-semibold text-gray-900 dark:text-white tracking-tight leading-tight">
                                         Expert AI <br />
-                                        <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Analytical Engine</span>
+                                        <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">MF Research Tool</span>
                                     </h2>
                                     <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto leading-relaxed font-medium">
-                                        Input your financial parameters to generate a risk-adjusted portfolio strategy.
+                                        Input parameters to learn about fund performance and explore simulated investment strategies.
                                     </p>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl px-6">
@@ -111,7 +125,7 @@ export default function AssistantPage() {
                                     <div className="flex justify-start animate-in fade-in duration-300">
                                         <div className="bg-transparent p-4 flex items-center space-x-3">
                                             <LoadingSpinner size="small" />
-                                            <span className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-tight italic">Analyzing data...</span>
+                                            <span className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-tight italic">Simulating results...</span>
                                         </div>
                                     </div>
                                 )}
@@ -164,6 +178,9 @@ export default function AssistantPage() {
                     />
                 </div>
             </div>
-        </div>
+
+            {/* Disclaimer Modal */}
+            {showDisclaimer && <DisclaimerModal onClose={handleCloseDisclaimer} />}
+        </div >
     );
 }

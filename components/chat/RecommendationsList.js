@@ -123,7 +123,7 @@ export default function RecommendationsList({ recommendations }) {
                                 <div className="space-y-4">
                                     <h4 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-600 flex items-center space-x-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                                        <span>Strategic Reason</span>
+                                        <span>Learning Insight</span>
                                     </h4>
                                     <p className="text-[15px] text-gray-700 leading-relaxed font-medium">
                                         {rec.reason}

@@ -27,7 +27,7 @@ export default function SearchForm({ onSearch, loading }) {
                                 handleSubmit();
                             }
                         }}
-                        placeholder="Ask me anything about mutual funds..."
+                        placeholder="Ask about mutual fund concepts..."
                         className="w-full p-3 pr-14 bg-transparent border border-gray-200 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 min-h-[56px] max-h-48 resize-none transition-all text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 font-medium text-sm"
                         rows={1}
                     />
@@ -43,7 +43,7 @@ export default function SearchForm({ onSearch, loading }) {
                     </button>
                 </form>
                 <p className="mt-2 text-[10px] text-gray-400 dark:text-gray-500 text-center font-semibold tracking-tight px-4 font-sans">
-                    FinChat AI can make mistakes. Always verify with a financial professional.
+                    MF Research learning tool. This is for educational research only. Not investment advice.
                 </p>
             </div>
         </div>

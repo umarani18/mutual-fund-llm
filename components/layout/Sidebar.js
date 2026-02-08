@@ -15,8 +15,7 @@ export default function Sidebar() {
     const isDarkMode = theme === 'dark';
 
     const navItems = [
-        { label: 'Dashboard', icon: Home, href: '/dashboard' },
-        { label: 'AI Assistant', icon: MessageSquare, href: '/assistant' }
+        { label: 'Learning Assistant', icon: MessageSquare, href: '/assistant' }
     ];
 
     return (
@@ -35,12 +34,12 @@ export default function Sidebar() {
                     {isOpen && (
                         <div className="flex flex-col overflow-hidden animate-in fade-in slide-in-from-left-2 duration-500">
                             <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tight leading-none whitespace-nowrap">
-                                FinChat AI
+                                MF Research Tool
                             </h1>
                             <div className="flex items-center space-x-2 mt-1">
                                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse flex-shrink-0"></span>
                                 <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest whitespace-nowrap">
-                                    {user ? 'Verified User' : 'Enterprise Advisor'}
+                                    {user ? 'Learner' : 'Educational Mode'}
                                 </p>
                             </div>
                         </div>
@@ -133,7 +132,7 @@ export default function Sidebar() {
                 {isOpen && (
                     <div className="pt-2 text-center animate-in fade-in duration-700">
                         <p className="text-[8px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em]">
-                            © 2026 FinChat
+                            © 2026 MF Research
                         </p>
                     </div>
                 )}

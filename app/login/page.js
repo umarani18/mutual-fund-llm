@@ -24,7 +24,7 @@ export default function LoginPage() {
         try {
             const response = await authApi.login({ email, password });
             login(response.user, response.access_token);
-            router.push('/dashboard');
+            router.push('/assistant');
         } catch (err) {
             setError(err.message || "Invalid credentials. Please try again.");
         } finally {
@@ -48,16 +48,16 @@ export default function LoginPage() {
                         <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg border border-white/20">
                             <span className="text-2xl">💎</span>
                         </div>
-                        <h1 className="text-2xl font-black tracking-tight">FinChat AI</h1>
+                        <h1 className="text-2xl font-black tracking-tight">MF Research Tool</h1>
                     </div>
 
                     <div className="space-y-6">
                         <h2 className="text-5xl lg:text-6xl font-black leading-tight tracking-tight">
                             Smart <br />
-                            <span className="text-indigo-200 italic">Financial Advisor.</span>
+                            <span className="text-indigo-200 italic">Learning Simulator.</span>
                         </h2>
                         <p className="text-indigo-100/70 text-lg font-medium leading-relaxed max-w-sm">
-                            Real-time market insights and personalized investment patterns powered by AI.
+                            Learn financial patterns and explore mutual fund concepts through AI-powered simulation.
                         </p>
                     </div>
                 </div>
@@ -68,11 +68,11 @@ export default function LoginPage() {
                             <ShieldCheck size={18} />
                         </div>
                         <div>
-                            <p className="text-[11px] font-black uppercase tracking-widest">Secure Access</p>
-                            <p className="text-[9px] text-indigo-100/60 font-bold uppercase tracking-tighter">Your data is always encrypted</p>
+                            <p className="text-[11px] font-black uppercase tracking-widest text-indigo-100">Educational Simulator</p>
+                            <p className="text-[9px] text-indigo-100/60 font-bold uppercase tracking-tighter">Learning purpose only</p>
                         </div>
                     </div>
-                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-indigo-200/50">© 2026 FINCHAT AI</p>
+                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-indigo-200/50">© 2026 MF RESEARCH TOOL</p>
                 </div>
             </div>
 
@@ -81,7 +81,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-md">
                     <div className="mb-8 lg:text-left text-center">
                         <h3 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Welcome Back</h3>
-                        <p className="text-gray-400 dark:text-gray-500 text-sm font-medium pt-2">Login to access your personal wealth dashboard.</p>
+                        <p className="text-gray-400 dark:text-gray-500 text-sm font-medium pt-2">Login to access your AI Learning Assistant.</p>
                     </div>
 
                     {error && (
@@ -152,8 +152,15 @@ export default function LoginPage() {
                     </form>
 
                     <p className="mt-8 text-center text-gray-500 dark:text-gray-400 text-[12px] font-bold">
-                        New to FinChat? <Link href="/signup" className="text-[#5c3ce6] hover:underline font-black">Register an account</Link>
+                        New to MF Research? <Link href="/signup" className="text-[#5c3ce6] hover:underline font-black">Register an account</Link>
                     </p>
+
+                    <div className="mt-12 p-4 bg-amber-50 dark:bg-amber-500/5 rounded-2xl border border-amber-100 dark:border-amber-500/10">
+                        <p className="text-[10px] text-amber-800 dark:text-amber-400 font-extrabold uppercase tracking-widest text-center mb-1">Important Notice</p>
+                        <p className="text-[10px] text-amber-700/70 dark:text-amber-400/50 font-medium text-center leading-relaxed">
+                            This platform is strictly an educational research tool. We do not provide investment advice or financial services. Mutual fund data is for learning and simulation purposes only.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

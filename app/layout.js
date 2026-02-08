@@ -18,16 +18,16 @@ const playfairDisplay = Playfair_Display({
 })
 
 export const metadata = {
-  title: 'FinChat - AI Mutual Fund Advisor',
-  description: 'Get personalized mutual fund recommendations from 2000+ funds. Powered by Groq Llama 4 AI model. Educational tool for smart investing.',
-  keywords: ['mutual funds', 'investment', 'recommendations', 'AI', 'MFAPI', 'India'],
-  authors: [{ name: 'FinChat Team' }],
+  title: 'Mutual Fund Research Tool',
+  description: 'Learn about mutual funds and financial patterns through our AI educational simulator. For research and learning purposes only.',
+  keywords: ['mutual funds', 'learning', 'educational', 'AI', 'simulation'],
+  authors: [{ name: 'Research Tool Team' }],
   robots: 'index, follow',
   openGraph: {
-    title: 'FinChat - AI Mutual Fund Advisor',
-    description: 'Get personalized mutual fund recommendations powered by AI',
+    title: 'Mutual Fund Research Tool',
+    description: 'Learn about mutual funds and financial patterns through our AI educational simulator',
     type: 'website',
-    url: 'https://finchat.example.com',
+    url: 'https://researchtool.example.com',
   },
 }
 
