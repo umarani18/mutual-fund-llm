@@ -24,6 +24,25 @@ export const useChat = () => {
         loadChatHistory();
     }, []);
 
+    useEffect(() => {
+        // Restore last open chat/messages when returning to assistant
+        if (typeof window === 'undefined') return;
+        const savedChatId = sessionStorage.getItem('currentChatId');
+        const savedMessages = sessionStorage.getItem('currentChatMessages');
+        if (savedChatId) {
+            setCurrentChatId(savedChatId);
+            if (savedMessages) {
+                try {
+                    setMessages(JSON.parse(savedMessages));
+                } catch {
+                    // ignore parse errors
+                }
+            } else {
+                loadChat(savedChatId);
+            }
+        }
+    }, []);
+
     const loadChatHistory = async () => {
         try {
             const data = await chatApi.getHistory();
@@ -155,6 +174,14 @@ export const useChat = () => {
         setMessages([]);
         setError('');
     };
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (currentChatId) {
+            sessionStorage.setItem('currentChatId', currentChatId);
+        }
+        sessionStorage.setItem('currentChatMessages', JSON.stringify(messages));
+    }, [messages, currentChatId]);
 
     return {
         messages,

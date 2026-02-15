@@ -20,6 +20,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/assistant/page.js"
+    ],
+    "/assistant/[schemeCode]/details/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/assistant/[schemeCode]/details/page.js"
     ]
   }
 }

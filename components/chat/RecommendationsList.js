@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 export default function RecommendationsList({ recommendations }) {
     const [expandedId, setExpandedId] = useState(null);
@@ -92,6 +93,11 @@ export default function RecommendationsList({ recommendations }) {
                                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 text-gray-600">
                                             {rec.fund_code}
                                         </span>
+                                        {rec.nav_date && (
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100/50">
+                                                Updated: {rec.nav_date}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -143,6 +149,12 @@ export default function RecommendationsList({ recommendations }) {
                                 </div>
 
                                 <div className="flex justify-end pt-4">
+                                    <Link
+                                        href={`/assistant/${encodeURIComponent(rec.fund_code)}/details`}
+                                        className="px-4 py-2 text-xs font-bold text-indigo-600 uppercase tracking-widest border border-indigo-100 rounded-xl hover:bg-indigo-50 transition-colors mr-3"
+                                    >
+                                        View More Details
+                                    </Link>
                                     <button
                                         onClick={() => setExpandedId(null)}
                                         className="px-6 py-2.5 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors"

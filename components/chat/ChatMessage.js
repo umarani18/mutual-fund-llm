@@ -40,11 +40,15 @@ export default function ChatMessage({ message }) {
                             {message.content}
                         </div>
 
-                        {isAssistant && (
-                            <div className="absolute top-0 right-0 p-2 opacity-10 dark:opacity-5 pointer-events-none">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2L14.4 7.2L20 8L16 12L16.9 17.6L12 15L7.1 17.6L8 12L4 8L9.6 7.2L12 2Z" />
-                                </svg>
+                        {isAssistant && message.type === 'quant_analysis' && (
+                            <div className="mt-4 pt-4 border-t border-indigo-50 dark:border-gray-800">
+                                <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
+                                    <span className="text-lg">📊</span>
+                                    <span className="text-xs font-black uppercase tracking-widest">Deterministic Result</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1 font-semibold italic">
+                                    Calculated by Finchat Deterministic Engine v1.0
+                                </p>
                             </div>
                         )}
                     </div>
