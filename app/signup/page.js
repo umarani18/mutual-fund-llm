@@ -63,7 +63,7 @@ export default function SignupPage() {
                 <div className="relative z-10">
                     <div className="flex items-center space-x-3 mb-16">
                         <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg border border-white/20">
-                            <span className="text-2xl">💎</span>
+                            <span className="text-white font-black text-lg">MF</span>
                         </div>
                         <h1 className="text-2xl font-black tracking-tight">MF Research Tool</h1>
                     </div>

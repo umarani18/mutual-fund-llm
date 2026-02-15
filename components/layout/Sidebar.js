@@ -55,9 +55,9 @@ export default function Sidebar() {
                         </div>
                         {isOpen && (
                             <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-bold tracking-tight truncate">Finchat</span>
+                                <span className="text-sm font-bold tracking-tight truncate">MF Research Tool</span>
                                 <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest whitespace-nowrap">
-                                    Research Tool
+                                    Assistant
                                 </span>
                             </div>
                         )}
