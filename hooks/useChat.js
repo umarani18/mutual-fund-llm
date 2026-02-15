@@ -24,24 +24,8 @@ export const useChat = () => {
         loadChatHistory();
     }, []);
 
-    useEffect(() => {
-        // Restore last open chat/messages when returning to assistant
-        if (typeof window === 'undefined') return;
-        const savedChatId = sessionStorage.getItem('currentChatId');
-        const savedMessages = sessionStorage.getItem('currentChatMessages');
-        if (savedChatId) {
-            setCurrentChatId(savedChatId);
-            if (savedMessages) {
-                try {
-                    setMessages(JSON.parse(savedMessages));
-                } catch {
-                    // ignore parse errors
-                }
-            } else {
-                loadChat(savedChatId);
-            }
-        }
-    }, []);
+    // Auto-restore removed to force new session on refresh
+
 
     const loadChatHistory = async () => {
         try {
@@ -175,13 +159,8 @@ export const useChat = () => {
         setError('');
     };
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        if (currentChatId) {
-            sessionStorage.setItem('currentChatId', currentChatId);
-        }
-        sessionStorage.setItem('currentChatMessages', JSON.stringify(messages));
-    }, [messages, currentChatId]);
+    // Persistence removed to ensure refresh starts new session
+
 
     return {
         messages,

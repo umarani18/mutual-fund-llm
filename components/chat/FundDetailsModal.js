@@ -29,7 +29,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                             <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
                                 Fund Intelligence Report
                             </h2>
-                            <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-500 text-[9px] font-black uppercase tracking-widest">Verified</span>
+                            <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 text-[9px] font-black uppercase tracking-widest">Verified</span>
                         </div>
                         {master && (
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
@@ -40,7 +40,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                     <div className="flex items-center space-x-3">
                         <button
                             onClick={handleViewFullAnalytics}
-                            className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-indigo-500/20"
+                            className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-blue-500/20"
                         >
                             <span>Full Analytics</span>
                             <ExternalLink size={12} />
@@ -57,8 +57,8 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                 <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar">
                     {loading && (
                         <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                            <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-                            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 animate-pulse">Scanning Asset DNA</div>
+                            <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-600 rounded-full animate-spin" />
+                            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600 animate-pulse">Scanning Asset DNA</div>
                         </div>
                     )}
 
@@ -83,7 +83,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                                 { label: 'Benchmark', value: master.benchmark || 'NIFTY 50 TRI', icon: <TrendingUp size={14} /> },
                             ].map((item, i) => (
                                 <div key={i} className="p-5 rounded-[2rem] border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/40 relative overflow-hidden group hover:bg-white dark:hover:bg-gray-900 transition-all border-dashed">
-                                    <div className="absolute top-0 right-0 p-3 text-indigo-500/10 group-hover:scale-125 transition-transform">{item.icon}</div>
+                                    <div className="absolute top-0 right-0 p-3 text-blue-600/10 group-hover:scale-125 transition-transform">{item.icon}</div>
                                     <div className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">{item.label}</div>
                                     <div className="text-lg font-black text-gray-900 dark:text-white">{item.value}</div>
                                     {item.sub && <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{item.sub}</div>}
@@ -95,7 +95,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                     {!loading && !error && metrics && (
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <div className="text-[11px] font-black uppercase tracking-[0.3em] text-indigo-500">Performance Matrix</div>
+                                <div className="text-[11px] font-black uppercase tracking-[0.3em] text-blue-600">Performance Matrix</div>
                                 <div className="h-[1px] flex-1 bg-gray-100 dark:bg-gray-800 opacity-50" />
                             </div>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -112,7 +112,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                                 ].map(([label, val, type], i) => (
                                     <div key={i} className="p-5 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
                                         <div className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">{label}</div>
-                                        <div className={`text-base font-black ${type === 'percentage' && val > 0 ? 'text-emerald-500' : 'text-gray-900 dark:text-white'}`}>
+                                        <div className={`text-base font-black ${type === 'percentage' && val > 0 ? 'text-blue-600' : 'text-gray-900 dark:text-white'}`}>
                                             {val === null || val === undefined ? '—' : type === 'percentage' ? `${(val * 100).toFixed(2)}%` : Number(val).toFixed(3)}
                                         </div>
                                     </div>
@@ -124,7 +124,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                     {!loading && !error && navHistory.length > 0 && (
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <div className="text-[11px] font-black uppercase tracking-[0.3em] text-indigo-500">Quick Growth Preview</div>
+                                <div className="text-[11px] font-black uppercase tracking-[0.3em] text-blue-600">Quick Growth Preview</div>
                                 <div className="h-[1px] flex-1 bg-gray-100 dark:bg-gray-800 opacity-50" />
                             </div>
                             <div className="h-40 w-full relative group">
@@ -143,7 +143,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
 
                     {!loading && !error && master && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-6 rounded-[2.5rem] bg-indigo-500 text-white shadow-xl shadow-indigo-500/20 relative overflow-hidden">
+                            <div className="p-6 rounded-[2.5rem] bg-blue-500 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
                                 <div className="relative z-10">
                                     <div className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">Risk Profile</div>
                                     <div className="text-2xl font-black mb-4">{master.risk_level}</div>
@@ -190,7 +190,7 @@ export default function FundDetailsModal({ open, onClose, loading, error, data }
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #6366f1;
+                    background: #2563eb;
                     border-radius: 10px;
                 }
             `}</style>
@@ -229,12 +229,12 @@ function HistoryPreviewChart({ history }) {
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
             <defs>
                 <linearGradient id="prevArea" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.1" />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#2563eb" stopOpacity="0.1" />
+                    <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
                 </linearGradient>
             </defs>
             <path d={areaPath} fill="url(#prevArea)" />
-            <path d={linePath} stroke="#6366f1" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d={linePath} stroke="#2563eb" strokeWidth="4" fill="none" strokeLinecap="round" />
         </svg>
     )
 }

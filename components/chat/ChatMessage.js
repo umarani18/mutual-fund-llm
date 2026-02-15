@@ -1,74 +1,91 @@
 'use client';
 
 import RecommendationsList from '@/components/chat/RecommendationsList';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 export default function ChatMessage({ message }) {
     const isAssistant = message.role === 'assistant';
 
     return (
-        <div className={`flex w-full ${isAssistant ? 'justify-start' : 'justify-end'} animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-            <div className={`flex items-start max-w-[92%] md:max-w-[85%] space-x-3 md:space-x-4 ${isAssistant ? 'flex-row' : 'flex-row-reverse space-x-reverse'}`}>
+        <div className={cn(
+            "flex w-full mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300",
+            isAssistant ? "justify-start" : "justify-end"
+        )}>
+            <div className={cn(
+                "flex items-start max-w-[90%] md:max-w-[80%] gap-4",
+                isAssistant ? "flex-row" : "flex-row-reverse"
+            )}>
+                {/* Avatar */}
+                <Avatar className={cn(
+                    "w-9 h-9 border shadow-sm",
+                    isAssistant ? "border-primary/20" : "border-border"
+                )}>
+                    <AvatarFallback className={cn(
+                        "text-[10px] font-black uppercase tracking-tighter",
+                        isAssistant ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    )}>
+                        {isAssistant ? "AI" : "U"}
+                    </AvatarFallback>
+                    {isAssistant && <AvatarImage src="/ai-avatar.png" />}
+                </Avatar>
 
-                {/* Avatar with Status Ring */}
-                <div className="relative flex-shrink-0">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110 ${isAssistant
-                        ? 'bg-gradient-to-tr from-indigo-600 to-violet-500 text-white'
-                        : 'bg-white dark:bg-gray-900 border-2 border-indigo-100 dark:border-gray-800 text-indigo-600 dark:text-indigo-400'
-                        }`}>
-                        <span className="text-xl">
-                            {isAssistant ? '✨' : '👤'}
+                {/* Message Content */}
+                <div className={cn(
+                    "flex flex-col gap-1.5",
+                    isAssistant ? "items-start" : "items-end"
+                )}>
+                    <div className="flex items-center gap-2 px-1">
+                        <span className={cn(
+                            "text-[11px] font-black uppercase tracking-tight",
+                            isAssistant ? "text-primary" : "text-muted-foreground"
+                        )}>
+                            {isAssistant ? 'Mutual Fund Research AI' : 'You'}
                         </span>
+                        {isAssistant && (
+                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.5)]" />
+                        )}
                     </div>
-                    {isAssistant && (
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-sm">
-                            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                        </div>
-                    )}
-                </div>
 
-                {/* Message Container */}
-                <div className={`flex flex-col ${isAssistant ? 'items-start' : 'items-end'} space-y-2`}>
-                    <span className="px-2 text-[10px] font-semibold tracking-tight text-gray-400 dark:text-gray-600">
-                        {isAssistant ? 'MF Research AI' : 'You'}
-                    </span>
-
-                    <div className={`relative px-6 py-4 rounded-3xl shadow-sm transition-all duration-300 ${isAssistant
-                        ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-white dark:border-gray-800 text-gray-800 dark:text-gray-100 rounded-tl-none chat-bubble-shadow ring-1 ring-black/[0.02]'
-                        : 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-100 dark:shadow-none'
-                        }`}>
-                        <div className={`text-sm leading-relaxed font-medium whitespace-pre-wrap`}>
+                    <div className={cn(
+                        "relative px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm border transition-all",
+                        isAssistant
+                            ? "bg-card text-card-foreground rounded-tl-none border-border/60"
+                            : "bg-primary text-primary-foreground rounded-tr-none border-transparent"
+                    )}>
+                        <div className="whitespace-pre-wrap font-medium">
                             {message.content}
                         </div>
 
                         {isAssistant && message.type === 'quant_analysis' && (
-                            <div className="mt-4 pt-4 border-t border-indigo-50 dark:border-gray-800">
-                                <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400">
-                                    <span className="text-lg">📊</span>
-                                    <span className="text-xs font-black uppercase tracking-widest">Deterministic Result</span>
+                            <div className="mt-3 pt-3 border-t border-border">
+                                <div className="flex items-center gap-2 text-primary">
+                                    <span className="text-sm">📈</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Quantum Analytics Result</span>
                                 </div>
-                                <p className="text-[10px] text-gray-400 mt-1 font-semibold italic">
-                                    Calculated by Finchat Deterministic Engine v1.0
+                                <p className="text-[10px] text-muted-foreground mt-1 font-medium italic">
+                                    Processed by Deterministic Financial Engine
                                 </p>
                             </div>
                         )}
                     </div>
 
                     {isAssistant && message.recommendations && message.recommendations.length > 0 && (
-                        <div className="w-full mt-6 space-y-8 animate-in fade-in duration-1000 slide-in-from-bottom-4">
-                            <div className="flex items-center space-x-4 px-2">
-                                <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent via-indigo-100 dark:via-gray-800 to-transparent"></div>
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-xs font-black text-indigo-400 dark:text-indigo-500 uppercase tracking-[0.3em]">Simulated Analysis</span>
-                                </div>
-                                <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent via-indigo-100 dark:via-gray-800 to-transparent"></div>
+                        <div className="w-full mt-6 space-y-4 animate-in fade-in duration-700 slide-in-from-bottom-3">
+                            <div className="flex items-center gap-4 px-2">
+                                <div className="h-[1px] flex-grow bg-primary/20"></div>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] whitespace-nowrap">
+                                    Strategic Selections
+                                </span>
+                                <div className="h-[1px] flex-grow bg-primary/20"></div>
                             </div>
 
                             <RecommendationsList recommendations={message.recommendations} />
 
-                            <div className="flex justify-center pt-2">
-                                <div className="px-4 py-2 bg-indigo-50/50 dark:bg-indigo-500/5 rounded-full border border-indigo-100/50 dark:border-indigo-500/10">
-                                    <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-tighter">
-                                        Generated by MF Research Learning Simulator
+                            <div className="flex justify-center">
+                                <div className="px-3 py-1 bg-muted/50 rounded-full border border-border">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                                        Verified Fund Data • Educational Simulation
                                     </p>
                                 </div>
                             </div>

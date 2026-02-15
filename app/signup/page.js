@@ -53,11 +53,11 @@ export default function SignupPage() {
         <div className="h-screen bg-white dark:bg-gray-950 flex flex-col lg:flex-row overflow-hidden font-sans">
 
             {/* Left Section - Branding/Visual (Violet Background) */}
-            <div className="hidden lg:flex flex-col w-[45%] bg-[#5c3ce6] p-10 justify-between relative overflow-hidden text-white h-full">
+            <div className="hidden lg:flex flex-col w-[45%] bg-[#2563eb] p-10 justify-between relative overflow-hidden text-white h-full">
                 {/* Background Decorative Elements */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-30">
                     <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-white/20 rounded-full blur-[120px] animate-pulse"></div>
-                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-400/20 rounded-full blur-[120px] animate-pulse delay-700"></div>
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600 rounded-full blur-[120px] animate-pulse delay-700"></div>
                 </div>
 
                 <div className="relative z-10">
@@ -71,9 +71,9 @@ export default function SignupPage() {
                     <div className="space-y-6">
                         <h2 className="text-5xl lg:text-6xl font-black leading-tight tracking-tight">
                             Start your <br />
-                            <span className="text-indigo-200 italic">Learning Journey.</span>
+                            <span className="text-blue-200 italic">Learning Journey.</span>
                         </h2>
-                        <p className="text-indigo-100/70 text-lg font-medium leading-relaxed max-w-sm">
+                        <p className="text-blue-100/70 text-lg font-medium leading-relaxed max-w-sm">
                             Join our educational platform to learn about mutual fund concepts and AI-driven analysis.
                         </p>
                     </div>
@@ -85,11 +85,11 @@ export default function SignupPage() {
                             <ShieldCheck size={18} />
                         </div>
                         <div>
-                            <p className="text-[11px] font-black uppercase tracking-widest text-indigo-100">Educational Simulator</p>
-                            <p className="text-[9px] text-indigo-100/60 font-bold uppercase tracking-tighter">Learning purpose only</p>
+                            <p className="text-[11px] font-black uppercase tracking-widest text-blue-100">Educational Simulator</p>
+                            <p className="text-[9px] text-blue-100/60 font-bold uppercase tracking-tighter">Learning purpose only</p>
                         </div>
                     </div>
-                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-indigo-200/50">© 2026 MF RESEARCH TOOL</p>
+                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-blue-200/50">© 2026 MF RESEARCH TOOL</p>
                 </div>
             </div>
 
@@ -111,7 +111,7 @@ export default function SignupPage() {
                         <div className="space-y-1">
                             <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest ml-1">Full Name</label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#5c3ce6] transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#2563eb] transition-colors">
                                     <User size={18} />
                                 </div>
                                 <input
@@ -119,7 +119,7 @@ export default function SignupPage() {
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#5c3ce6]/10 focus:border-[#5c3ce6]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700"
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#2563eb]/10 focus:border-[#2563eb]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700"
                                     placeholder="Enter your full name"
                                 />
                             </div>
@@ -128,7 +128,7 @@ export default function SignupPage() {
                         <div className="space-y-1">
                             <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest ml-1">Email Address</label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#5c3ce6] transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#2563eb] transition-colors">
                                     <Mail size={18} />
                                 </div>
                                 <input
@@ -136,7 +136,7 @@ export default function SignupPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#5c3ce6]/10 focus:border-[#5c3ce6]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700"
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#2563eb]/10 focus:border-[#2563eb]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700"
                                     placeholder="email@example.com"
                                 />
                             </div>
@@ -146,7 +146,7 @@ export default function SignupPage() {
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest ml-1">Password</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#5c3ce6] transition-colors">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#2563eb] transition-colors">
                                         <Lock size={18} />
                                     </div>
                                     <input
@@ -154,13 +154,13 @@ export default function SignupPage() {
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-11 pr-11 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#5c3ce6]/10 focus:border-[#5c3ce6]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700 sm:text-base"
+                                        className="block w-full pl-11 pr-11 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#2563eb]/10 focus:border-[#2563eb]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700 sm:text-base"
                                         placeholder="••••••••"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#5c3ce6] transition-colors"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#2563eb] transition-colors"
                                     >
                                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
@@ -170,7 +170,7 @@ export default function SignupPage() {
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest ml-1">Confirm Password</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#5c3ce6] transition-colors">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#2563eb] transition-colors">
                                         <RotateCcw size={18} />
                                     </div>
                                     <input
@@ -178,13 +178,13 @@ export default function SignupPage() {
                                         required
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="block w-full pl-11 pr-11 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#5c3ce6]/10 focus:border-[#5c3ce6]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700 sm:text-base"
+                                        className="block w-full pl-11 pr-11 py-3.5 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-[#2563eb]/10 focus:border-[#2563eb]/50 transition-all font-medium placeholder-gray-300 dark:placeholder-gray-700 sm:text-base"
                                         placeholder="••••••••"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#5c3ce6] transition-colors"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#2563eb] transition-colors"
                                     >
                                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
@@ -195,7 +195,7 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#5c3ce6] hover:bg-[#4a2fd1] text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-100 dark:shadow-none transition-all flex items-center justify-center space-x-2 group active:scale-[0.98] disabled:opacity-70 mt-4"
+                            className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-100 dark:shadow-none transition-all flex items-center justify-center space-x-2 group active:scale-[0.98] disabled:opacity-70 mt-4"
                         >
                             {loading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -209,7 +209,7 @@ export default function SignupPage() {
                     </form>
 
                     <p className="mt-6 text-center text-gray-500 dark:text-gray-400 text-[12px] font-bold">
-                        Already have an account? <Link href="/login" className="text-[#5c3ce6] hover:underline font-black">Log in here</Link>
+                        Already have an account? <Link href="/login" className="text-[#2563eb] hover:underline font-black">Log in here</Link>
                     </p>
 
                     <div className="mt-12 p-4 bg-amber-50 dark:bg-amber-500/5 rounded-2xl border border-amber-100 dark:border-amber-500/10">

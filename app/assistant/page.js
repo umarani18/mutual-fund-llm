@@ -3,17 +3,24 @@
 import { useChat } from '@/hooks/useChat';
 import ChatMessage from '@/components/chat/ChatMessage';
 import SearchForm from '@/components/chat/SearchForm';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Sidebar from '@/components/layout/Sidebar';
 import ChatHistory from '@/components/chat/ChatHistory';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { History, ChevronRight } from 'lucide-react';
-import DisclaimerModal from '@/components/ui/DisclaimerModal';
+import { useEffect, useState, useRef } from 'react';
+import { History, Sparkles, AlertCircle, Plus } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 export default function AssistantPage() {
-    const [showDisclaimer, setShowDisclaimer] = useState(false);
     const {
         messages,
         loading: chatLoading,
@@ -28,21 +35,10 @@ export default function AssistantPage() {
         clearAllHistory,
         messagesEndRef
     } = useChat();
+
     const [showHistory, setShowHistory] = useState(true);
     const { isAuthenticated, loading: authLoading } = useAuth();
     const router = useRouter();
-
-    useEffect(() => {
-        const accepted = sessionStorage.getItem('disclaimerAccepted');
-        if (!accepted && isAuthenticated) {
-            setShowDisclaimer(true);
-        }
-    }, [isAuthenticated]);
-
-    const handleCloseDisclaimer = () => {
-        sessionStorage.setItem('disclaimerAccepted', 'true');
-        setShowDisclaimer(false);
-    };
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -52,135 +48,140 @@ export default function AssistantPage() {
 
     if (authLoading || !isAuthenticated) {
         return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-gray-950 space-y-4">
-                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                <div className="font-black uppercase tracking-widest text-indigo-600 animate-pulse text-xs">Initializing Learning Simulator...</div>
+            <div className="h-screen w-full flex flex-col items-center justify-center bg-background gap-4">
+                <Skeleton className="w-12 h-12 rounded-full" />
+                <div className="font-bold text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
+                    Authenticating Session...
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="flex h-screen bg-white dark:bg-gray-950 transition-colors duration-300 overflow-hidden">
-            {/* Left Sidebar Layout */}
+        <div className="flex h-screen bg-background overflow-hidden">
+            {/* Navigation Sidebar */}
             <Sidebar />
 
-            {/* Right Main Chat Interface */}
-            <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent relative">
-                {/* Open History Button (Visible when closed) */}
-                {!showHistory && (
-                    <button
-                        onClick={() => setShowHistory(true)}
-                        className="absolute top-6 right-6 z-30 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 text-gray-500 hover:text-indigo-600 shadow-xl backdrop-blur-md animate-in fade-in zoom-in duration-300"
-                        title="Show History"
-                    >
-                        <History size={18} />
-                    </button>
-                )}
+            {/* Main Application Area */}
+            <main className="flex-1 flex flex-col min-w-0 relative">
+                {/* Fixed Top Header (Breadcrumb style) */}
+                <header className="h-16 flex items-center justify-between px-6 border-b bg-background/50 backdrop-blur-md z-30">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold tracking-tight">AI Assistant</span>
+                        <div className="h-1 w-1 rounded-full bg-border"></div>
+                        <span className="text-xs text-muted-foreground font-medium">Research Sandbox</span>
+                    </div>
 
-                {/* Chat History Area */}
-                <div className="flex-1 overflow-y-auto px-4 py-8 space-y-6 md:px-0 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800 scrollbar-track-transparent bg-transparent">
-                    <div className="max-w-4xl mx-auto space-y-8">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => startNewChat()}
+                            className="hidden md:flex gap-2 h-9"
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span className="text-xs font-semibold">New Chat</span>
+                        </Button>
+
+                        {!showHistory && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setShowHistory(true)}
+                                className="h-9 w-9 transition-colors"
+                            >
+                                <History className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
+                </header>
+
+                {/* Chat Scroll Area */}
+                <ScrollArea className="flex-1 px-4 md:px-6">
+                    <div className="max-w-4xl mx-auto py-8">
                         {messages.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                                <div className="p-4 bg-indigo-50 dark:bg-indigo-500/10 rounded-full">
-                                    <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl animate-bounce">
-                                        <span className="text-3xl">✨</span>
-                                    </div>
+                            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-8 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+                                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shadow-inner">
+                                    <Sparkles className="w-7 h-7 text-primary" />
                                 </div>
-                                <div className="space-y-3 text-center">
-                                    <h2 className="text-xl font-sans font-semibold text-gray-900 dark:text-white tracking-tight leading-tight">
-                                        Expert AI <br />
-                                        <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">MF Research Tool</span>
+                                <div className="space-y-3">
+                                    <h2 className="text-2xl font-black text-primary tracking-tight">
+                                        Advanced Mutual Fund Analytics
                                     </h2>
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto leading-relaxed font-medium">
-                                        Input parameters to learn about fund performance and explore simulated investment strategies.
+                                    <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed font-medium">
+                                        Exploration framework for fund selection rules, risk metrics, and suitability analysis.
                                     </p>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl px-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
                                     {[
-                                        "Safe funds for 1 year with low risk",
-                                        "High growth equity funds for 20 years",
-                                        "Balanced funds for child's education",
-                                        "Investing 10k monthly for wealth creation"
+                                        "Top 3 Small Cap funds",
+                                        "Balanced Advantage funds for 5 year SIP",
+                                        "Compare Index Funds vs Active Large Cap",
+                                        "Suggest a portfolio for aggressive growth"
                                     ].map((suggested, idx) => (
-                                        <button
+                                        <Button
                                             key={idx}
+                                            variant="outline"
                                             onClick={() => sendMessage(suggested)}
-                                            className="p-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-left text-sm font-semibold tracking-tight text-gray-600 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-500/30 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5 hover:shadow-md transition-all group"
+                                            className="h-auto p-4 justify-start text-left border-border/60 hover:border-primary/50 hover:bg-primary/5 group"
                                         >
-                                            <span className="flex items-center space-x-3">
-                                                <span className="text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 p-1.5 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors">💡</span>
-                                                <span className="truncate">{suggested}</span>
-                                            </span>
-                                        </button>
+                                            <div className="flex flex-col gap-1 overflow-hidden">
+                                                <span className="text-sm text-muted-foreground truncate group-hover:text-foreground transition-colors">
+                                                    {suggested}
+                                                </span>
+                                            </div>
+                                        </Button>
                                     ))}
                                 </div>
                             </div>
                         ) : (
-                            <>
+                            <div className="space-y-2">
                                 {messages.map((msg, index) => (
                                     <ChatMessage key={index} message={msg} />
                                 ))}
                                 {chatLoading && (
-                                    <div className="flex justify-start animate-in fade-in duration-300">
-                                        <div className="bg-transparent p-4 flex items-center space-x-3">
-                                            <LoadingSpinner size="small" />
-                                            <span className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-tight italic">Simulating results...</span>
+                                    <div className="flex gap-4 p-4 animate-pulse">
+                                        <Skeleton className="w-9 h-9 rounded-full" />
+                                        <div className="flex flex-col gap-2 pt-2">
+                                            <Skeleton className="h-4 w-48" />
+                                            <Skeleton className="h-4 w-32" />
                                         </div>
                                     </div>
                                 )}
                                 {error && (
-                                    <div className="p-3 bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500 rounded-r-xl text-red-700 dark:text-red-400 text-xs font-semibold tracking-tight shadow-sm max-w-lg mx-auto">
-                                        <span className="flex items-center space-x-2">
-                                            <span>⚠️</span>
-                                            <span>{error}</span>
-                                        </span>
+                                    <div className="flex items-center gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-semibold max-w-md mx-auto">
+                                        <AlertCircle className="w-4 h-4" />
+                                        <span>{error}</span>
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
-                        <div ref={messagesEndRef} />
+                        <div ref={messagesEndRef} className="h-4" />
                     </div>
-                </div>
+                </ScrollArea>
 
-                {/* Bottom Input Section */}
-                <div className="bg-transparent mt-auto">
+                {/* Lower Input Section */}
+                <div className="z-30">
                     <SearchForm onSearch={sendMessage} loading={chatLoading} />
                 </div>
-            </div>
+            </main>
 
-            {/* Right Side Chat History with Triangular Close Handle */}
-            <div className={`relative transition-all duration-500 ease-in-out h-full border-l border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 ${showHistory ? 'w-80 opacity-100' : 'w-0 opacity-0'
-                }`}>
-
-                {/* Triangular Close Handle (Visible when open) */}
-                {showHistory && (
-                    <button
-                        onClick={() => setShowHistory(false)}
-                        className="absolute top-1/2 -left-3 transform -translate-y-1/2 z-40 group"
-                        title="Hide History"
-                    >
-                        <div className="w-3 h-12 bg-gray-100 dark:bg-gray-800 border-l border-y border-gray-200 dark:border-gray-700 rounded-l-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
-                            <ChevronRight size={10} className="text-gray-400 group-hover:text-indigo-500" />
-                        </div>
-                    </button>
-                )}
-
-                <div className="w-80 h-full">
-                    <ChatHistory
-                        chatList={chatList}
-                        currentChatId={currentChatId}
-                        onSelectChat={loadChat}
-                        onDeleteChat={deleteChat}
-                        onNewChat={startNewChat}
-                        onClearHistory={clearAllHistory}
-                        loading={historyLoading}
-                    />
-                </div>
-            </div>
-
-            {/* Disclaimer Modal */}
-            {showDisclaimer && <DisclaimerModal onClose={handleCloseDisclaimer} />}
-        </div >
+            {/* Chat History Panel */}
+            <aside className={cn(
+                "hidden xl:block border-l bg-card transition-all duration-300 overflow-hidden",
+                showHistory ? "w-80" : "w-0"
+            )}>
+                <ChatHistory
+                    chatList={chatList}
+                    currentChatId={currentChatId}
+                    onSelectChat={loadChat}
+                    onDeleteChat={deleteChat}
+                    onNewChat={startNewChat}
+                    onClearHistory={clearAllHistory}
+                    loading={historyLoading}
+                    onClose={() => setShowHistory(false)}
+                />
+            </aside>
+        </div>
     );
 }

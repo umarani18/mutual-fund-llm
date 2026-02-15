@@ -2,169 +2,188 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { TrendingUp, FileText, Search, CheckCircle2, ChevronRight, Info, X, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function RecommendationsList({ recommendations }) {
+    const router = useRouter();
     const [expandedId, setExpandedId] = useState(null);
+    const [loadingId, setLoadingId] = useState(null);
 
-    const getRiskStyles = (level) => {
+    const handleViewDetails = (fundCode) => {
+        setLoadingId(fundCode);
+        router.push(`/assistant/${fundCode}/details`);
+    };
+
+    const getRiskColors = (level) => {
         switch (level?.toLowerCase()) {
-            case 'low':
-                return {
-                    bg: 'bg-emerald-50',
-                    border: 'border-emerald-100',
-                    text: 'text-emerald-700',
-                    badge: 'bg-emerald-100 text-emerald-800',
-                    gradient: 'from-emerald-500 to-teal-600'
-                };
-            case 'medium':
-                return {
-                    bg: 'bg-amber-50',
-                    border: 'border-amber-100',
-                    text: 'text-amber-700',
-                    badge: 'bg-amber-100 text-amber-800',
-                    gradient: 'from-amber-400 to-orange-500'
-                };
-            case 'high':
-                return {
-                    bg: 'bg-rose-50',
-                    border: 'border-rose-100',
-                    text: 'text-rose-700',
-                    badge: 'bg-rose-100 text-rose-800',
-                    gradient: 'from-rose-500 to-red-600'
-                };
-            default:
-                return {
-                    bg: 'bg-gray-50',
-                    border: 'border-gray-100',
-                    text: 'text-gray-700',
-                    badge: 'bg-gray-100 text-gray-800',
-                    gradient: 'from-gray-500 to-slate-600'
-                };
+            case 'low': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            case 'moderately low': return 'bg-teal-100 text-teal-700 border-teal-200';
+            case 'moderate': return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'moderately high': return 'bg-amber-100 text-amber-700 border-amber-200';
+            case 'high': return 'bg-rose-100 text-rose-700 border-rose-200';
+            case 'very high': return 'bg-red-100 text-red-700 border-red-200';
+            default: return 'bg-gray-100 text-gray-700 border-gray-200';
         }
     };
 
     const getCategoryIcon = (category) => {
         const cat = category?.toLowerCase() || '';
-        if (cat.includes('equity')) return '📈';
-        if (cat.includes('debt')) return '📜';
-        if (cat.includes('hybrid')) return '⚖️';
-        if (cat.includes('liquid')) return '💧';
-        if (cat.includes('gilt')) return '🏛️';
-        return '📊';
+        if (cat.includes('equity')) return <TrendingUp className="w-4 h-4 text-blue-600" />;
+        if (cat.includes('debt')) return <FileText className="w-4 h-4 text-emerald-600" />;
+        if (cat.includes('hybrid')) return <Search className="w-4 h-4 text-indigo-600" />;
+        return <Info className="w-4 h-4 text-muted-foreground" />;
     };
 
     return (
-        <div className="grid grid-cols-1 gap-6 w-full max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 gap-4 w-full">
             {recommendations.map((rec, index) => {
-                const styles = getRiskStyles(rec.risk_level);
-                const isExpanded = expandedId === rec.rank;
+                const isExpanded = expandedId === rec.rank; // Use rank or scheme_code as unique ID
 
                 return (
-                    <div
-                        key={rec.rank}
-                        className={`group relative overflow-hidden flex flex-col transition-all duration-500 rounded-3xl border shadow-sm hover:shadow-xl hover:translate-y-[-2px] ${isExpanded
-                            ? `ring-2 ring-indigo-500 ring-offset-2 ${styles.bg} border-transparent`
-                            : 'bg-white border-gray-100'
-                            }`}
+                    <Card
+                        key={rec.rank || index} // Fallback key
+                        className={cn(
+                            "group relative overflow-hidden transition-all duration-300 border-border/60 hover:border-primary/30 hover:shadow-lg",
+                            isExpanded ? "ring-2 ring-primary/5 shadow-xl bg-card" : "bg-card/50"
+                        )}
                     >
-                        <div className={`absolute -top-2 -left-2 w-10 h-10 rounded-2xl bg-gradient-to-br ${styles.gradient} text-white flex items-center justify-center font-black text-sm shadow-lg z-10 transform -rotate-12 group-hover:rotate-0 transition-transform`}>
-                            #{rec.rank}
-                        </div>
-
-                        <div
-                            onClick={() => setExpandedId(isExpanded ? null : rec.rank)}
-                            className="p-6 cursor-pointer select-none"
-                        >
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div className="flex-1 space-y-1">
-                                    <div className="flex items-center space-x-3">
-                                        <span className="text-2xl">{getCategoryIcon(rec.category)}</span>
-                                        <h3 className="text-lg font-black text-gray-900 leading-tight">
-                                            {rec.fund_name}
-                                        </h3>
+                        <CardHeader className="p-5 pb-3">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex gap-3.5 min-w-0 flex-1">
+                                    <div className="mt-1 w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
+                                        {getCategoryIcon(rec.category)}
                                     </div>
-                                    <div className="flex flex-wrap gap-2 pt-1">
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${styles.badge}`}>
-                                            {rec.risk_level} Risk
-                                        </span>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-indigo-50 text-indigo-700">
-                                            {rec.category}
-                                        </span>
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 text-gray-600">
-                                            {rec.fund_code}
-                                        </span>
-                                        {rec.nav_date && (
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100/50">
-                                                Updated: {rec.nav_date}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3 bg-gray-50/50 p-3 rounded-2xl border border-gray-100/50">
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-black uppercase text-gray-400 tracking-[0.15em] leading-none mb-1">Match Core</span>
-                                        <span className="text-2xl font-black text-gray-900 leading-none">
-                                            {rec.suitability_score?.toFixed(0)}<span className="text-xs text-indigo-500">%</span>
-                                        </span>
-                                    </div>
-                                    <div className="w-10 h-10 rounded-full border-2 border-gray-100 flex items-center justify-center p-1">
-                                        <div
-                                            className="h-full rounded-full bg-indigo-600 transition-all duration-1000"
-                                            style={{ width: `${rec.suitability_score}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {!isExpanded && rec.reason && (
-                                <p className="mt-4 text-sm text-gray-500 line-clamp-2 leading-relaxed italic">
-                                    &ldquo;{rec.reason}&rdquo;
-                                </p>
-                            )}
-                        </div>
-
-                        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                            <div className="px-6 pb-8 space-y-8 border-t border-gray-100/50 pt-6">
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-600 flex items-center space-x-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                                        <span>Learning Insight</span>
-                                    </h4>
-                                    <p className="text-[15px] text-gray-700 leading-relaxed font-medium">
-                                        {rec.reason}
-                                    </p>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-indigo-900 to-slate-900 p-6 rounded-3xl shadow-xl text-white">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-4 text-center">Core Strengths</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {rec.key_highlights && rec.key_highlights.map((h, i) => (
-                                            <div key={i} className="flex items-center space-x-3 bg-white/10 p-3 rounded-xl backdrop-blur-md border border-white/10">
-                                                <span className="text-indigo-400">✦</span>
-                                                <span className="text-sm font-medium text-indigo-50">{h}</span>
+                                    <div className="space-y-1.5 min-w-0 flex-1">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <h3 className="font-bold text-base leading-tight tracking-tight text-foreground line-clamp-2" title={rec.fund_name}>
+                                                {rec.fund_name}
+                                            </h3>
+                                            <div className="flex flex-col items-end shrink-0">
+                                                <Badge
+                                                    variant="secondary"
+                                                    className={cn(
+                                                        "font-bold font-mono text-xs px-2 h-6 border",
+                                                        rec.suitability_score >= 80
+                                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                                            : "bg-amber-50 text-amber-700 border-amber-200"
+                                                    )}
+                                                >
+                                                    {rec.suitability_score?.toFixed(0)}% Match
+                                                </Badge>
                                             </div>
-                                        ))}
+                                        </div>
+
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold px-2 py-0.5 border h-5", getRiskColors(rec.risk_level))}>
+                                                {rec.risk_level} Risk
+                                            </Badge>
+                                            <Badge variant="secondary" className="text-[10px] uppercase font-bold px-2 py-0.5 h-5 bg-muted/60 text-muted-foreground border-border/50">
+                                                {rec.category}
+                                            </Badge>
+                                            {rec.rank && (
+                                                <span className="text-[10px] font-bold text-muted-foreground/60 tracking-wider uppercase ml-1">
+                                                    #{rec.rank}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div className="flex justify-end pt-4">
-                                    <Link
-                                        href={`/assistant/${encodeURIComponent(rec.fund_code)}/details`}
-                                        className="px-4 py-2 text-xs font-bold text-indigo-600 uppercase tracking-widest border border-indigo-100 rounded-xl hover:bg-indigo-50 transition-colors mr-3"
-                                    >
-                                        View More Details
-                                    </Link>
-                                    <button
-                                        onClick={() => setExpandedId(null)}
-                                        className="px-6 py-2.5 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors"
-                                    >
-                                        Close Detail
-                                    </button>
-                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </CardHeader>
+
+                        <CardContent className="p-5 pt-2">
+                            <div className="space-y-4">
+                                {!isExpanded ? (
+                                    <div className="flex items-end justify-between gap-3">
+                                        {rec.reason ? (
+                                            <div className="relative">
+                                                <p className="text-sm text-muted-foreground/90 line-clamp-2 leading-relaxed font-medium">
+                                                    {rec.reason}
+                                                </p>
+                                                <div className="absolute bottom-0 right-0 bg-gradient-to-l from-card via-card/80 to-transparent w-8 h-5" />
+                                            </div>
+                                        ) : (
+                                            <span className="text-sm text-muted-foreground italic">View investment analysis...</span>
+                                        )}
+
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setExpandedId(rec.rank)}
+                                            className="shrink-0 h-8 w-8 text-primary/70 hover:text-primary hover:bg-primary/10 rounded-full"
+                                        >
+                                            <ChevronRight className="w-5 h-5" />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-5 animate-in slide-in-from-top-2 duration-300">
+                                        <div className="space-y-2">
+                                            {/* Header for expanded view */}
+                                            <div className="pb-2 border-b border-border/40 flex items-center justify-between">
+                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                                                    Suitability Analysis
+                                                </h4>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => setExpandedId(null)}
+                                                    className="h-6 w-6 -mr-2 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                                    title="Close Analysis"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+
+                                            <p className="text-sm text-foreground/90 leading-relaxed font-medium">
+                                                {rec.reason}
+                                            </p>
+                                        </div>
+
+                                        {rec.key_highlights && rec.key_highlights.length > 0 && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                {rec.key_highlights.map((highlight, i) => (
+                                                    <div key={i} className="flex items-start gap-2.5 p-3 rounded-lg bg-muted/30 border border-border/40 group-hover:border-primary/10 transition-colors">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0 shadow-[0_0_4px_rgba(37,99,235,0.4)]" />
+                                                        <span className="text-xs font-medium text-muted-foreground/90 leading-snug">
+                                                            {highlight}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center justify-end pt-2">
+
+                                            <Button
+                                                size="sm"
+                                                className="h-9 px-5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-primary/20 gap-2 min-w-[140px]"
+                                                disabled={loadingId === rec.fund_code}
+                                                onClick={() => handleViewDetails(rec.fund_code)}
+                                            >
+                                                {loadingId === rec.fund_code ? (
+                                                    <>
+                                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                        Fetching Details...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        View Details <ChevronRight className="w-3.5 h-3.5" />
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
                 );
             })}
         </div>

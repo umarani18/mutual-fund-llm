@@ -5,14 +5,31 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
 import { cn } from "@/lib/utils"
 
-const Avatar = React.forwardRef(({ className, ...props }, ref) => (
+/**
+ * @typedef {Object} AvatarProps
+ * @property {string} [className]
+ * @property {React.ReactNode} [children]
+ */
+
+/** @type {React.ForwardRefExoticComponent<AvatarProps & React.RefAttributes<HTMLDivElement>>} */
+const Avatar = React.forwardRef(({ className, children, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
     className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}
-    {...props} />
+    {...props}>
+    {children}
+  </AvatarPrimitive.Root>
 ))
 Avatar.displayName = AvatarPrimitive.Root.displayName
 
+/**
+ * @typedef {Object} AvatarImageProps
+ * @property {string} [className]
+ * @property {string} [src]
+ * @property {string} [alt]
+ */
+
+/** @type {React.ForwardRefExoticComponent<AvatarImageProps & React.RefAttributes<HTMLImageElement>>} */
 const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
   <AvatarPrimitive.Image
     ref={ref}
@@ -21,14 +38,23 @@ const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
 ))
 AvatarImage.displayName = AvatarPrimitive.Image.displayName
 
-const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => (
+/**
+ * @typedef {Object} AvatarFallbackProps
+ * @property {string} [className]
+ * @property {React.ReactNode} [children]
+ */
+
+/** @type {React.ForwardRefExoticComponent<AvatarFallbackProps & React.RefAttributes<HTMLDivElement>>} */
+const AvatarFallback = React.forwardRef(({ className, children, ...props }, ref) => (
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
       "flex h-full w-full items-center justify-center rounded-full bg-muted",
       className
     )}
-    {...props} />
+    {...props}>
+    {children}
+  </AvatarPrimitive.Fallback>
 ))
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
 
