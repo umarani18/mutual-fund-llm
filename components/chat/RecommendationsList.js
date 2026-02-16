@@ -7,17 +7,30 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, FileText, Search, CheckCircle2, ChevronRight, Info, X, Loader2 } from "lucide-react";
+import { TrendingUp, FileText, Search, CheckCircle2, ChevronRight, Info, X, Loader2, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function RecommendationsList({ recommendations }) {
     const router = useRouter();
     const [expandedId, setExpandedId] = useState(null);
     const [loadingId, setLoadingId] = useState(null);
+    const [selectedFunds, setSelectedFunds] = useState([]);
+
 
     const handleViewDetails = (fundCode) => {
         setLoadingId(fundCode);
         router.push(`/assistant/${fundCode}/details`);
+    };
+
+    const toggleSelection = (fund) => {
+        setSelectedFunds(prev => {
+            const exists = prev.find(f => f.fund_code === fund.fund_code);
+            if (exists) {
+                return prev.filter(f => f.fund_code !== fund.fund_code);
+            } else {
+                return [...prev, fund];
+            }
+        });
     };
 
     const getRiskColors = (level) => {
@@ -41,21 +54,42 @@ export default function RecommendationsList({ recommendations }) {
     };
 
     return (
-        <div className="grid grid-cols-1 gap-4 w-full">
+        <div className="grid grid-cols-1 gap-4 w-full relative">
             {recommendations.map((rec, index) => {
                 const isExpanded = expandedId === rec.rank; // Use rank or scheme_code as unique ID
+                const isSelected = selectedFunds.some(f => f.fund_code === rec.fund_code);
 
                 return (
                     <Card
                         key={rec.rank || index} // Fallback key
                         className={cn(
                             "group relative overflow-hidden transition-all duration-300 border-border/60 hover:border-primary/30 hover:shadow-lg",
-                            isExpanded ? "ring-2 ring-primary/5 shadow-xl bg-card" : "bg-card/50"
+                            isExpanded ? "ring-2 ring-primary/5 shadow-xl bg-card" : "bg-card/50",
+                            isSelected && "ring-1 ring-blue-500 bg-blue-50/30 dark:bg-blue-900/10"
                         )}
                     >
+                        {/* Checkbox for Comparison */}
+                        <div className="absolute top-4 right-4 z-20">
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSelection(rec);
+                                }}
+                                className={cn(
+                                    "w-5 h-5 rounded-md border flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm",
+                                    isSelected
+                                        ? "bg-blue-600 border-blue-600 scale-110"
+                                        : "border-gray-300 bg-white/80 dark:border-gray-600 dark:bg-gray-900 hover:border-blue-400"
+                                )}
+                                title="Select to compare"
+                            >
+                                {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                            </div>
+                        </div>
+
                         <CardHeader className="p-5 pb-3">
                             <div className="flex items-start justify-between gap-4">
-                                <div className="flex gap-3.5 min-w-0 flex-1">
+                                <div className="flex gap-3.5 min-w-0 flex-1 pr-8">
                                     <div className="mt-1 w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
                                         {getCategoryIcon(rec.category)}
                                     </div>
@@ -64,7 +98,7 @@ export default function RecommendationsList({ recommendations }) {
                                             <h3 className="font-bold text-base leading-tight tracking-tight text-foreground line-clamp-2" title={rec.fund_name}>
                                                 {rec.fund_name}
                                             </h3>
-                                            <div className="flex flex-col items-end shrink-0">
+                                            <div className="flex flex-col items-end shrink-0 pt-6"> {/* Adjusted padding to clear checkbox */}
                                                 <Badge
                                                     variant="secondary"
                                                     className={cn(
@@ -186,6 +220,23 @@ export default function RecommendationsList({ recommendations }) {
                     </Card>
                 );
             })}
+
+            {/* Compare Button */}
+            {selectedFunds.length >= 2 && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-4 zoom-in-95 duration-300">
+                    <Button
+                        onClick={() => {
+                            const codes = selectedFunds.map(f => f.fund_code).join(',');
+                            router.push(`/assistant/compare?codes=${codes}`);
+                        }}
+                        className="rounded-full shadow-2xl h-12 px-8 font-black uppercase tracking-widest bg-gray-900 hover:bg-black text-white border border-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                    >
+                        <BarChart3 className="w-4 h-4 mr-3" />
+                        Compare {selectedFunds.length} Funds
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }
+
