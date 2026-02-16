@@ -1,7 +1,8 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/login/page": "app/login/page.js",
   "/assistant/page": "app/assistant/page.js",
-  "/signup/page": "app/signup/page.js",
   "/assistant/[schemeCode]/details/page": "app/assistant/[schemeCode]/details/page.js",
-  "/assistant/compare/page": "app/assistant/compare/page.js"
+  "/assistant/compare/page": "app/assistant/compare/page.js",
+  "/signup/page": "app/signup/page.js"
 }

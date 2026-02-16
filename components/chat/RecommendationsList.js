@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
@@ -221,8 +222,8 @@ export default function RecommendationsList({ recommendations }) {
                 );
             })}
 
-            {/* Compare Button */}
-            {selectedFunds.length >= 2 && (
+            {/* Compare Button - Portaled to avoid transform clipping in chat */}
+            {selectedFunds.length >= 2 && typeof document !== 'undefined' && createPortal(
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-4 zoom-in-95 duration-300">
                     <Button
                         onClick={() => {
@@ -234,7 +235,8 @@ export default function RecommendationsList({ recommendations }) {
                         <BarChart3 className="w-4 h-4 mr-3" />
                         Compare {selectedFunds.length} Funds
                     </Button>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
