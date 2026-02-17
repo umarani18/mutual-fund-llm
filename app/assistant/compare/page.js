@@ -251,41 +251,49 @@ function ComparisonChart({ funds }) {
 
 function MiniHistoryChart({ history }) {
     const width = 280;
-    const height = 80;
+    const height = 100;
+    const padding = { top: 10, right: 10, bottom: 20, left: 45 };
 
     const data = useMemo(() => {
-        if (!history || history.length === 0) return [];
+        if (!history || history.length === 0) return { points: [], min: 0, max: 0, dates: [] };
         const recent = history.slice(-250);
         const values = recent.map(d => d.nav_value);
         const min = Math.min(...values);
         const max = Math.max(...values);
         const range = max - min || 1;
 
-        return recent.map((d, i) => ({
-            x: (i / (recent.length - 1)) * width,
-            y: height - ((d.nav_value - min) / range) * (height - 20) - 10,
-            value: d.nav_value
+        const points = recent.map((d, i) => ({
+            x: padding.left + (i / (recent.length - 1)) * (width - padding.left - padding.right),
+            y: padding.top + (height - padding.top - padding.bottom) - ((d.nav_value - min) / range) * (height - padding.top - padding.bottom),
+            value: d.nav_value,
+            date: d.nav_date
         }));
+
+        return { points, min, max, dates: recent.map(d => d.nav_date) };
     }, [history]);
 
-    if (data.length === 0) return <div className="h-20 w-full bg-muted/20 rounded flex items-center justify-center text-[10px] text-muted-foreground">No History</div>;
+    if (data.points.length === 0) return <div className="h-20 w-full bg-muted/20 rounded flex items-center justify-center text-[10px] text-muted-foreground">No History</div>;
 
-    const start = data[0].value;
-    const end = data[data.length - 1].value;
+    const start = data.points[0].value;
+    const end = data.points[data.points.length - 1].value;
     const isPositive = end >= start;
     const color = isPositive ? "#10b981" : "#f43f5e";
     const gradientId = `grad-${Math.random()}`;
 
-    const pathD = data.reduce((acc, p, i) => {
+    const pathD = data.points.reduce((acc, p, i) => {
         if (i === 0) return `M${p.x},${p.y}`;
-        const prev = data[i - 1];
+        const prev = data.points[i - 1];
         const cp1x = prev.x + (p.x - prev.x) / 3;
         const cp2x = p.x - (p.x - prev.x) / 3;
         return acc + ` C${cp1x},${prev.y} ${cp2x},${p.y} ${p.x},${p.y}`;
     }, '');
 
+    // Get first and last dates for X-axis
+    const firstDate = new Date(data.dates[0]);
+    const lastDate = new Date(data.dates[data.dates.length - 1]);
+
     return (
-        <div className="w-full h-20 relative group">
+        <div className="w-full h-28 relative group">
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
                 <defs>
                     <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -293,8 +301,48 @@ function MiniHistoryChart({ history }) {
                         <stop offset="100%" stopColor={color} stopOpacity="0" />
                     </linearGradient>
                 </defs>
+
+                {/* Y-axis line */}
+                <line
+                    x1={padding.left}
+                    y1={padding.top}
+                    x2={padding.left}
+                    y2={height - padding.bottom}
+                    stroke="#000000"
+                    strokeWidth="1"
+                    strokeOpacity="0.2"
+                />
+
+                {/* X-axis line */}
+                <line
+                    x1={padding.left}
+                    y1={height - padding.bottom}
+                    x2={width - padding.right}
+                    y2={height - padding.bottom}
+                    stroke="#000000"
+                    strokeWidth="1"
+                    strokeOpacity="0.2"
+                />
+
+                {/* Y-axis labels */}
+                <text x={padding.left - 5} y={padding.top + 5} textAnchor="end" style={{ fontSize: '8px', fill: '#888', fontWeight: 500 }}>
+                    ₹{data.max.toFixed(0)}
+                </text>
+                <text x={padding.left - 5} y={height - padding.bottom} textAnchor="end" style={{ fontSize: '8px', fill: '#888', fontWeight: 500 }}>
+                    ₹{data.min.toFixed(0)}
+                </text>
+
+                {/* X-axis labels */}
+                <text x={padding.left} y={height - 2} textAnchor="start" style={{ fontSize: '7px', fill: '#888', fontWeight: 500 }}>
+                    {firstDate.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
+                </text>
+                <text x={width - padding.right} y={height - 2} textAnchor="end" style={{ fontSize: '7px', fill: '#888', fontWeight: 500 }}>
+                    {lastDate.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
+                </text>
+
+                {/* Chart path */}
                 <path d={pathD} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d={`${pathD} L${width},${height} L0,${height} Z`} fill={`url(#${gradientId})`} stroke="none" />
+                <path d={`${pathD} L${width - padding.right},${height - padding.bottom} L${padding.left},${height - padding.bottom} Z`} fill={`url(#${gradientId})`} stroke="none" />
             </svg>
             <div className="absolute top-0 right-0 bg-background/80 backdrop-blur px-1.5 py-0.5 rounded text-[10px] font-bold border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
                 {isPositive ? '+' : ''}{((end - start) / start * 100).toFixed(1)}%
