@@ -28,6 +28,7 @@ function ComparisonChart({ funds }) {
     const containerRef = useRef(null);
     const [hoverIndex, setHoverIndex] = useState(null);
     const [width, setWidth] = useState(0);
+    const [range, setRange] = useState('1Y'); // Default to 1 Year
     const height = 320;
     const padding = { top: 20, right: 20, bottom: 30, left: 40 };
 
@@ -44,12 +45,16 @@ function ComparisonChart({ funds }) {
         if (!funds || funds.length === 0) return { series: [], dates: [] };
 
         const now = new Date();
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(now.getFullYear() - 1);
+        const startDate = new Date();
+
+        if (range === '1Y') startDate.setFullYear(now.getFullYear() - 1);
+        else if (range === '3Y') startDate.setFullYear(now.getFullYear() - 3);
+        else if (range === '5Y') startDate.setFullYear(now.getFullYear() - 5);
+        else if (range === 'Max') startDate.setFullYear(now.getFullYear() - 50);
 
         const series = funds.map((fund, idx) => {
             const history = fund.nav_history || [];
-            const filtered = history.filter(d => new Date(d.nav_date) >= oneYearAgo)
+            const filtered = history.filter(d => new Date(d.nav_date) >= startDate)
                 .sort((a, b) => new Date(a.nav_date).getTime() - new Date(b.nav_date).getTime());
 
             if (filtered.length === 0) return null;
@@ -79,7 +84,7 @@ function ComparisonChart({ funds }) {
         const allDates = Array.from(dateSet).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
         return { series, dates: allDates };
-    }, [funds]);
+    }, [funds, range]);
 
     const { min, max } = useMemo(() => {
         let min = 0;
@@ -101,8 +106,8 @@ function ComparisonChart({ funds }) {
     };
 
     const getY = (val) => {
-        const range = max - min || 1;
-        return (height - padding.bottom) - ((val - min) / range) * (height - padding.top - padding.bottom);
+        const rangeVal = max - min || 1;
+        return (height - padding.bottom) - ((val - min) / rangeVal) * (height - padding.top - padding.bottom);
     };
 
     const handleMouseMove = (e) => {
@@ -120,23 +125,45 @@ function ComparisonChart({ funds }) {
 
     if (chartData.series.length === 0) return <div className="h-64 flex items-center justify-center text-muted-foreground">Not enough data for chart</div>;
 
+    const rangeLabel = range === 'Max' ? 'all time' : `last ${range}`;
+
     return (
         <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 border-border/60 overflow-hidden" ref={containerRef} onMouseMove={handleMouseMove} onMouseLeave={() => setHoverIndex(null)}>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                     <h3 className="text-lg font-black tracking-tight">Performance Comparison</h3>
-                    <p className="text-xs text-muted-foreground">Normalized percentage return over last 1 year</p>
+                    <p className="text-xs text-muted-foreground">Normalized percentage return over {rangeLabel}</p>
                 </div>
-                <div className="flex flex-wrap gap-3 justify-end max-w-2xl">
-                    {chartData.series.map(s => (
-                        <div key={s.id} className="flex items-center gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                            <span className="text-[10px] font-bold text-muted-foreground truncate max-w-[120px]" title={s.name}>
-                                {s.name}
-                            </span>
-                        </div>
-                    ))}
+
+                <div className="flex flex-col items-end gap-3">
+                    <div className="flex bg-muted/30 p-1 rounded-lg border border-border/40">
+                        {['1Y', '3Y', '5Y', 'Max'].map((r) => (
+                            <button
+                                key={r}
+                                onClick={() => setRange(r)}
+                                className={cn(
+                                    "px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-md transition-all",
+                                    range === r
+                                        ? "bg-background text-primary shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                {r}
+                            </button>
+                        ))}
+                    </div>
                 </div>
+            </div>
+
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mb-6 border-y border-border/40 py-3 bg-muted/5 -mx-6 px-6">
+                {chartData.series.map(s => (
+                    <div key={s.id} className="flex items-center gap-1.5 min-w-fit">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                        <span className="text-[10px] font-bold text-muted-foreground truncate max-w-[200px]" title={s.name}>
+                            {s.name}
+                        </span>
+                    </div>
+                ))}
             </div>
 
             <div className="relative h-[320px] w-full cursor-crosshair">
@@ -184,7 +211,7 @@ function ComparisonChart({ funds }) {
                                 strokeLinejoin="round"
                                 initial={{ pathLength: 0, opacity: 0 }}
                                 animate={{ pathLength: 1, opacity: 1 }}
-                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                transition={{ duration: 1, ease: "easeOut" }}
                             />
                         );
                     })}
@@ -213,27 +240,28 @@ function ComparisonChart({ funds }) {
 
                 {hoverIndex !== null && (
                     <div
-                        className="absolute bg-background/95 backdrop-blur-md border border-border/50 p-3 rounded-lg shadow-xl z-50 pointer-events-none min-w-[180px]"
+                        className="absolute bg-background/95 backdrop-blur-md border border-border/50 p-3 rounded-lg shadow-xl z-50 pointer-events-none min-w-[200px]"
                         style={{
-                            left: Math.min(width - 200, Math.max(0, getX(chartData.dates[hoverIndex]) + 15)),
+                            left: Math.min(width - 220, Math.max(0, getX(chartData.dates[hoverIndex]) + 15)),
                             top: 20
                         }}
                     >
-                        <div className="text-xs font-bold text-muted-foreground mb-2 border-b border-border/50 pb-1">
-                            {new Date(chartData.dates[hoverIndex]).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                        <div className="text-[10px] font-black text-muted-foreground mb-2 border-b border-border/40 pb-1.5 flex justify-between items-center">
+                            <span>{new Date(chartData.dates[hoverIndex]).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
+                            <span className="bg-muted px-1.5 rounded">DATA POINT</span>
                         </div>
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                             {chartData.series.map(s => {
                                 const pt = s.data.find(p => p.date === chartData.dates[hoverIndex]);
                                 if (!pt) return null;
                                 return (
-                                    <div key={s.id} className="flex justify-between items-center gap-4 text-xs">
-                                        <div className="flex items-center gap-1.5 max-w-[120px]">
+                                    <div key={s.id} className="flex justify-between items-center gap-4 text-[11px]">
+                                        <div className="flex items-center gap-2 max-w-[140px]">
                                             <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.color }} />
-                                            <span className="truncate font-medium">{s.name}</span>
+                                            <span className="truncate font-bold opacity-80">{s.name}</span>
                                         </div>
                                         <div className={cn(
-                                            "font-bold font-mono",
+                                            "font-black font-mono",
                                             pt.val >= 0 ? "text-emerald-500" : "text-rose-500"
                                         )}>
                                             {pt.val > 0 ? '+' : ''}{pt.val.toFixed(2)}%
@@ -256,7 +284,16 @@ function MiniHistoryChart({ history }) {
 
     const data = useMemo(() => {
         if (!history || history.length === 0) return { points: [], min: 0, max: 0, dates: [] };
-        const recent = history.slice(-250);
+
+        const now = new Date();
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+        const recent = history.filter(d => new Date(d.nav_date) >= oneYearAgo)
+            .sort((a, b) => new Date(a.nav_date).getTime() - new Date(b.nav_date).getTime());
+
+        if (recent.length === 0) return { points: [], min: 0, max: 0, dates: [] };
+
         const values = recent.map(d => d.nav_value);
         const min = Math.min(...values);
         const max = Math.max(...values);
