@@ -42,7 +42,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${inter.variable} ${playfairDisplay.variable}`}>
       <head>
         <meta charSet="utf-8" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%232563eb'>📊</text></svg>" />
+
       </head>
       <body className="font-sans antialiased bg-white dark:bg-gray-950 transition-colors duration-300">
         <ThemeProvider>

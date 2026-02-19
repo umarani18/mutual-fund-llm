@@ -127,6 +127,7 @@ export const useChat = () => {
             }
 
             const data = await chatApi.sendMessage(userPrompt, chatId);
+            console.log('📡 [DEBUG] Backend Response Received:', data);
 
             if (data.status === 'success') {
                 const aiMessage = {
