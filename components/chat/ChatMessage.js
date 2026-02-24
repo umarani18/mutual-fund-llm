@@ -3,6 +3,7 @@
 import RecommendationsList from '@/components/chat/RecommendationsList';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { Bot, User } from 'lucide-react';
 
 export default function ChatMessage({ message }) {
     const isAssistant = message.role === 'assistant';
@@ -19,15 +20,14 @@ export default function ChatMessage({ message }) {
                 {/* Avatar */}
                 <Avatar className={cn(
                     "w-9 h-9 border shadow-sm",
-                    isAssistant ? "border-primary/20" : "border-border"
+                    isAssistant ? "border-primary/20 bg-primary/5" : "border-border bg-muted/30"
                 )}>
                     <AvatarFallback className={cn(
                         "text-[10px] font-black uppercase tracking-tighter",
                         isAssistant ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                     )}>
-                        {isAssistant ? "AI" : "U"}
+                        {isAssistant ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
                     </AvatarFallback>
-                    {isAssistant && <AvatarImage src="/ai-avatar.png" />}
                 </Avatar>
 
                 {/* Message Content */}

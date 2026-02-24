@@ -37,19 +37,22 @@ export const viewport = {
   maximumScale: 1,
 }
 
+import { ComplianceProvider } from '@/context/ComplianceContext';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfairDisplay.variable}`}>
       <head>
         <meta charSet="utf-8" />
-
       </head>
       <body className="font-sans antialiased bg-white dark:bg-gray-950 transition-colors duration-300">
         <ThemeProvider>
           <AuthProvider>
-            <SidebarProvider>
-              {children}
-            </SidebarProvider>
+            <ComplianceProvider>
+              <SidebarProvider>
+                {children}
+              </SidebarProvider>
+            </ComplianceProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

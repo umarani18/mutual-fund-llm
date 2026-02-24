@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { chatApi } from '@/lib/api';
+import { useCompliance } from '@/context/ComplianceContext';
 
 export const useChat = () => {
     const [messages, setMessages] = useState([]);
@@ -10,6 +11,7 @@ export const useChat = () => {
     const [error, setError] = useState('');
     const [currentChatId, setCurrentChatId] = useState(null);
     const [chatList, setChatList] = useState([]);
+    const { selectedStack } = useCompliance();
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -126,7 +128,7 @@ export const useChat = () => {
                 }
             }
 
-            const data = await chatApi.sendMessage(userPrompt, chatId);
+            const data = await chatApi.sendMessage(userPrompt, chatId, selectedStack.modules);
             console.log('📡 [DEBUG] Backend Response Received:', data);
 
             if (data.status === 'success') {

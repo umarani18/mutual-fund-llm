@@ -265,7 +265,7 @@ export default function FundDetailsPage() {
                                 </div>
                             </CardHeader>
 
-                            <CardContent className="flex-1 p-6 pt-4 min-h-[400px]">
+                            <CardContent className="flex-1 p-6 pt-4 min-h-[520px]">
                                 <HistoryChart history={navHistory} timeRange={timeRange} />
                             </CardContent>
                         </Card>
@@ -290,7 +290,7 @@ export default function FundDetailsPage() {
                                         ['Sharpe ratio', metrics?.sharpe || 0, 'Risk adjusted efficiency'],
                                         ['Volatility (SD)', metrics?.std_dev || 0, 'Market sensitivity'],
                                         ['Beta index', metrics?.beta || 1.0, 'Market correlation'],
-                                        ['Max drawdown', metrics?.drawdown || 0, 'Peak-to-trough variance']
+                                        ['Max drawdown', metrics?.max_drawdown || 0, 'Peak-to-trough variance']
                                     ].map(([label, val, desc]) => (
                                         <div key={label} className="space-y-1">
                                             <div className="flex justify-between text-xs font-bold tracking-tight">
@@ -404,8 +404,8 @@ export default function FundDetailsPage() {
 
 function HistoryChart({ history, timeRange }) {
     const width = 1000;
-    const height = 450;
-    const padding = { top: 40, right: 40, bottom: 110, left: 60 };
+    const height = 520;
+    const padding = { top: 40, right: 40, bottom: 120, left: 70 };
 
     const filteredData = useMemo(() => {
         if (!history || history.length === 0) return [];
@@ -439,13 +439,18 @@ function HistoryChart({ history, timeRange }) {
     }, [history, timeRange]);
 
     const metrics = useMemo(() => {
-        if (filteredData.length === 0) return { min: 0, max: 1, range: 1 };
-        const values = filteredData.map(d => d.nav_value);
-        const min = Math.min(...values);
-        const max = Math.max(...values);
+        if (filteredData.length === 0) return { min: 0, max: 1, range: 1, maxChange: 0.01 };
+        const values = filteredData.map(d => d.nav_value).filter(v => v != null && isFinite(v));
+        if (values.length === 0) return { min: 0, max: 1, range: 1, maxChange: 0.01 };
+        const actualMin = Math.min(...values);
+        const actualMax = Math.max(...values);
+        const actualRange = actualMax - actualMin;
+        // 15% vertical padding so the line is never clipped at edges
+        const min = actualMin - actualRange * 0.15;
+        const max = actualMax + actualRange * 0.15;
         const range = max - min || 1;
 
-        const changes = filteredData.map(d => d.change);
+        const changes = filteredData.map(d => d.change).filter(isFinite);
         const maxChange = Math.max(...changes.map(Math.abs)) || 0.01;
 
         return { min, max, range, maxChange };
@@ -456,9 +461,9 @@ function HistoryChart({ history, timeRange }) {
             const x = padding.left + (i / Math.max(filteredData.length - 1, 1)) * (width - padding.left - padding.right);
             const y = (height - padding.bottom) - ((d.nav_value - metrics.min) / metrics.range) * (height - padding.top - padding.bottom);
 
-            // Enhanced Daily Variation bar scaling - 40% taller for more visual impact
-            const barH = (Math.abs(d.change) / metrics.maxChange) * 85;
-            const barY = height - padding.bottom + 45;
+            // Variation bars: scaled to 200px max height for clear visibility
+            const barH = Math.max(2, (Math.abs(d.change) / metrics.maxChange) * 200);
+            const barY = height - padding.bottom + 10;
 
             return { x, y, barH, barY, ...d };
         });
@@ -480,36 +485,45 @@ function HistoryChart({ history, timeRange }) {
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible cursor-crosshair">
                 <defs>
                     <linearGradient id="chartAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#2563eb" stopOpacity="0.2" />
+                        <stop offset="0%" stopColor="#2563eb" stopOpacity="0.35" />
+                        <stop offset="70%" stopColor="#2563eb" stopOpacity="0.08" />
                         <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
                     </linearGradient>
                     <linearGradient id="chartLineGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#2563eb" />
-                        <stop offset="100%" stopColor="#3b82f6" />
+                        <stop offset="0%" stopColor="#1d4ed8" />
+                        <stop offset="100%" stopColor="#60a5fa" />
                     </linearGradient>
                 </defs>
 
                 {/* Horizontal Grid Lines */}
-                {[0, 0.25, 0.5, 0.75, 1].map(v => (
-                    <g key={v} opacity="0.1">
-                        <line
-                            x1={padding.left}
-                            y1={(height - padding.bottom) - v * (height - padding.top - padding.bottom)}
-                            x2={width - padding.right}
-                            y2={(height - padding.bottom) - v * (height - padding.top - padding.bottom)}
-                            stroke="currentColor"
-                        />
-                        <text
-                            x={padding.left - 10}
-                            y={(height - padding.bottom) - v * (height - padding.top - padding.bottom)}
-                            className="text-[10px] font-medium fill-muted-foreground text-right"
-                            textAnchor="end"
-                            alignmentBaseline="middle"
-                        >
-                            {(metrics.min + v * metrics.range).toFixed(1)}
-                        </text>
-                    </g>
-                ))}
+                {[0, 0.25, 0.5, 0.75, 1].map(v => {
+                    const lineY = (height - padding.bottom) - v * (height - padding.top - padding.bottom);
+                    const labelVal = metrics.min + v * metrics.range;
+                    return (
+                        <g key={v}>
+                            <line
+                                x1={padding.left}
+                                y1={lineY}
+                                x2={width - padding.right}
+                                y2={lineY}
+                                stroke="#94a3b8"
+                                strokeOpacity="0.25"
+                                strokeDasharray="4 4"
+                            />
+                            <text
+                                x={padding.left - 8}
+                                y={lineY}
+                                fontSize="12"
+                                fill="#94a3b8"
+                                textAnchor="end"
+                                dominantBaseline="middle"
+                                fontWeight="600"
+                            >
+                                ₹{labelVal.toFixed(2)}
+                            </text>
+                        </g>
+                    );
+                })}
 
                 <AnimatePresence>
                     <motion.path
@@ -522,28 +536,36 @@ function HistoryChart({ history, timeRange }) {
                     />
                     <motion.path
                         key={`line-${timeRange}`}
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 1 }}
-                        transition={{ duration: 1, ease: "easeInOut" }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6 }}
                         d={linePath}
                         stroke="url(#chartLineGrad)"
-                        strokeWidth="3"
+                        strokeWidth="5"
                         fill="none"
                         strokeLinecap="round"
+                        strokeLinejoin="round"
+                        filter="drop-shadow(0 2px 6px rgba(37,99,235,0.5))"
                     />
                 </AnimatePresence>
 
-                {/* Bottom Variation Bars - Enhanced Size */}
-                {points.filter((_, i) => i % (timeRange === 'ALL' ? 10 : 1) === 0).map((p, i) => (
+                {/* Bottom Variation Bars */}
+                {points.filter((_, i, arr) => {
+                    // For dense data, thin out bars so they don't overlap
+                    const step = arr.length > 500 ? 3 : arr.length > 200 ? 2 : 1;
+                    return i % step === 0;
+                }).map((p, i) => (
                     <motion.rect
                         key={i}
-                        initial={{ height: 0 }}
-                        animate={{ height: p.barH }}
-                        x={p.x - 2}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: p.barH, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        x={p.x - 2.5}
                         y={p.change >= 0 ? p.barY - p.barH : p.barY}
-                        width="4"
+                        width="5"
                         rx="2"
-                        className={p.change >= 0 ? "fill-emerald-500/80" : "fill-rose-500/80"}
+                        fill={p.change >= 0 ? '#10b981' : '#f43f5e'}
+                        opacity="0.9"
                     />
                 ))}
 

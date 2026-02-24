@@ -1,3 +1,6 @@
 {
+  "/login/page": "app/login/page.js",
+  "/assistant/page": "app/assistant/page.js",
+  "/assistant/[schemeCode]/details/page": "app/assistant/[schemeCode]/details/page.js",
   "/assistant/compare/page": "app/assistant/compare/page.js"
 }
