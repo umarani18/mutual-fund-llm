@@ -57,7 +57,7 @@ export default function RecommendationsList({ recommendations }) {
     return (
         <div className="grid grid-cols-1 gap-4 w-full relative">
             {recommendations.map((rec, index) => {
-                const isExpanded = expandedId === rec.rank; // Use rank or scheme_code as unique ID
+                const isExpanded = expandedId === rec.fund_code;
                 const isSelected = selectedFunds.some(f => f.fund_code === rec.fund_code);
 
                 return (
@@ -100,17 +100,6 @@ export default function RecommendationsList({ recommendations }) {
                                                 {rec.fund_name}
                                             </h3>
                                             <div className="flex flex-col items-end shrink-0 pt-6"> {/* Adjusted padding to clear checkbox */}
-                                                <Badge
-                                                    variant="secondary"
-                                                    className={cn(
-                                                        "font-bold font-mono text-xs px-2 h-6 border",
-                                                        rec.suitability_score >= 80
-                                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                                            : "bg-amber-50 text-amber-700 border-amber-200"
-                                                    )}
-                                                >
-                                                    {rec.suitability_score?.toFixed(0)}% Match
-                                                </Badge>
                                             </div>
                                         </div>
 
@@ -150,7 +139,7 @@ export default function RecommendationsList({ recommendations }) {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => setExpandedId(rec.rank)}
+                                            onClick={() => setExpandedId(rec.fund_code)}
                                             className="shrink-0 h-8 w-8 text-primary/70 hover:text-primary hover:bg-primary/10 rounded-full"
                                         >
                                             <ChevronRight className="w-5 h-5" />
@@ -163,7 +152,7 @@ export default function RecommendationsList({ recommendations }) {
                                             <div className="pb-2 border-b border-border/40 flex items-center justify-between">
                                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                                                    Suitability Analysis
+                                                    Quantitative Analysis
                                                 </h4>
                                                 <Button
                                                     variant="ghost"

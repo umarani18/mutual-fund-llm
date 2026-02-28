@@ -3,14 +3,17 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useCompliance } from '@/context/ComplianceContext';
-import { ChevronDown, ShieldCheck, SendHorizonal } from 'lucide-react';
+import { ShieldCheck, SendHorizonal, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import ComplianceModal from '@/components/chat/ComplianceModal';
 
 export default function SearchForm({ onSearch, loading }) {
     const [input, setInput] = useState('');
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { selectedStack, changeStack, COMPLIANCE_STACKS } = useCompliance();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const {
+        effectiveModules
+    } = useCompliance();
 
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
@@ -19,17 +22,6 @@ export default function SearchForm({ onSearch, loading }) {
         onSearch(input.trim());
         setInput('');
     };
-
-    // Close menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (isMenuOpen && !event.target.closest('.compliance-dropdown')) {
-                setIsMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isMenuOpen]);
 
     return (
         <div className="w-full bg-background/80 backdrop-blur-sm border-t p-4 pb-6 relative z-40">
@@ -44,73 +36,37 @@ export default function SearchForm({ onSearch, loading }) {
                                 handleSubmit();
                             }
                         }}
-                        placeholder="Ask anything"
+                        placeholder="Ask anything about mutual funds..."
                         className="w-full px-6 py-5 min-h-[90px] max-h-48 resize-none bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/60 text-sm leading-relaxed"
                     />
 
                     {/* Bottom Actions Area */}
                     <div className="flex items-center justify-between px-3 pb-3">
                         <div className="flex items-center gap-2">
-                            {/* Custom Compliance Selector Dropdown */}
-                            <div className="relative compliance-dropdown">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className={cn(
-                                        "flex items-center gap-2.5 bg-secondary/40 hover:bg-secondary/70 border rounded-full h-9 px-4 transition-all duration-200 group/pill",
-                                        isMenuOpen ? "border-primary/40 bg-secondary/80 shadow-sm" : "border-border/30"
-                                    )}
-                                >
-                                    <ShieldCheck className={cn(
-                                        "h-4 w-4 transition-colors",
-                                        isMenuOpen ? "text-primary" : "text-primary/70 group-hover/pill:text-primary"
-                                    )} />
-                                    <span className="text-[11px] font-black uppercase tracking-wider text-foreground/80">
-                                        {selectedStack.label}
-                                    </span>
-                                    <ChevronDown className={cn(
-                                        "h-3 w-3 text-muted-foreground transition-transform duration-200",
-                                        isMenuOpen && "rotate-180"
-                                    )} />
-                                </button>
-
-                                {isMenuOpen && (
-                                    <div className="absolute bottom-full left-0 mb-2 w-56 bg-card border border-border shadow-xl rounded-2xl p-1.5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                                        <div className="px-2 py-1.5 mb-1">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
-                                                Compliance Level
-                                            </span>
-                                        </div>
-                                        {Object.values(COMPLIANCE_STACKS).map((s) => (
-                                            <button
-                                                key={s.id}
-                                                type="button"
-                                                onClick={() => {
-                                                    changeStack(s.id);
-                                                    setIsMenuOpen(false);
-                                                }}
-                                                className={cn(
-                                                    "w-full flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all text-left group/item",
-                                                    selectedStack.id === s.id
-                                                        ? "bg-primary/10 text-primary"
-                                                        : "hover:bg-secondary text-foreground/70 hover:text-foreground"
-                                                )}
-                                            >
-                                                <div className={cn(
-                                                    "mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 transition-all",
-                                                    selectedStack.id === s.id ? "bg-primary scale-125" : "bg-transparent group-hover/item:bg-muted-foreground/30"
-                                                )} />
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-xs font-bold leading-none">{s.label}</span>
-                                                    <span className="text-[10px] leading-tight text-muted-foreground/60 font-medium">
-                                                        {s.description || 'Standard filtering applied'}
-                                                    </span>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
+                            {/* Compliance Trigger */}
+                            <button
+                                type="button"
+                                onClick={() => setIsModalOpen(true)}
+                                className={cn(
+                                    "flex items-center gap-2.5 bg-secondary/40 hover:bg-secondary/70 border border-border/30 rounded-full h-9 px-4 transition-all duration-200 group/pill shadow-sm"
                                 )}
-                            </div>
+                            >
+                                <div className="relative">
+                                    <ShieldCheck className="h-4 w-4 text-primary/70 group-hover/pill:text-primary transition-colors" />
+                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                    </span>
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-wider text-foreground/80">
+                                    Adaptive Compliance
+                                </span>
+                                <div className="h-4 w-[1px] bg-border/50 mx-0.5" />
+                                <span className="text-[10px] font-bold text-primary">
+                                    {effectiveModules.length} Rules
+                                </span>
+                                <Settings className="h-3 w-3 text-muted-foreground/60 group-hover/pill:rotate-45 transition-transform" />
+                            </button>
                         </div>
 
                         <Button
@@ -123,9 +79,13 @@ export default function SearchForm({ onSearch, loading }) {
                         </Button>
                     </div>
                 </form>
-                <div className="flex justify-center flex-col items-center gap-1">
+
+                {/* Pop-up Box in Center */}
+                <ComplianceModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+
+                <div className="flex justify-center flex-col items-center gap-1 mt-3">
                     <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest text-center">
-                        AI can make mistakes. Consider verifying important information with a professional financial advisor.
+                        Institutional Intelligence Engine • Verified Deterministic Formulas
                     </p>
                 </div>
             </div>

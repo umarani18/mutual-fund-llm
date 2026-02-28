@@ -11,7 +11,7 @@ export const useChat = () => {
     const [error, setError] = useState('');
     const [currentChatId, setCurrentChatId] = useState(null);
     const [chatList, setChatList] = useState([]);
-    const { selectedStack } = useCompliance();
+    const { effectiveModules } = useCompliance();
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -128,7 +128,7 @@ export const useChat = () => {
                 }
             }
 
-            const data = await chatApi.sendMessage(userPrompt, chatId, selectedStack.modules);
+            const data = await chatApi.sendMessage(userPrompt, chatId, effectiveModules);
             console.log('📡 [DEBUG] Backend Response Received:', data);
 
             if (data.status === 'success') {

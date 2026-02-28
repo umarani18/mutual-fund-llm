@@ -69,22 +69,6 @@ export default function FundComparisonModal({ open, onClose, selectedFunds }) {
                                         </td>
                                     ))}
                                 </tr>
-                                {/* Suitability Score */}
-                                <tr>
-                                    <td className="p-4 font-bold text-gray-500 text-xs uppercase tracking-wider sticky left-0 bg-white dark:bg-gray-950 z-10 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">Match Score</td>
-                                    {selectedFunds.map((fund, i) => (
-                                        <td key={i} className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="text-sm font-bold text-blue-600">
-                                                    {fund.suitability_score?.toFixed(0)}%
-                                                </div>
-                                                <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-blue-600 rounded-full" style={{ width: `${fund.suitability_score}%` }}></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    ))}
-                                </tr>
                                 {/* NAV */}
                                 <tr>
                                     <td className="p-4 font-bold text-gray-500 text-xs uppercase tracking-wider sticky left-0 bg-white dark:bg-gray-950 z-10 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">Latest NAV</td>

@@ -14,6 +14,7 @@ const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
 
+/** @param {{ className?: string, children?: React.ReactNode }} props */
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
@@ -25,6 +26,7 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+/** @param {{ className?: string, children?: React.ReactNode }} props */
 const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
@@ -46,39 +48,53 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
+/** @param {{ className?: string, children?: React.ReactNode }} props */
 const DialogHeader = ({
   className,
+  children,
   ...props
 }) => (
   <div
     className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}
-    {...props} />
+    {...props}>
+    {children}
+  </div>
 )
 DialogHeader.displayName = "DialogHeader"
 
+/** @param {{ className?: string, children?: React.ReactNode }} props */
 const DialogFooter = ({
   className,
+  children,
   ...props
 }) => (
   <div
     className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)}
-    {...props} />
+    {...props}>
+    {children}
+  </div>
 )
 DialogFooter.displayName = "DialogFooter"
 
-const DialogTitle = React.forwardRef(({ className, ...props }, ref) => (
+/** @param {{ className?: string, children?: React.ReactNode }} props */
+const DialogTitle = React.forwardRef(({ className, children, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
     className={cn("text-lg font-semibold leading-none tracking-tight", className)}
-    {...props} />
+    {...props}>
+    {children}
+  </DialogPrimitive.Title>
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
-const DialogDescription = React.forwardRef(({ className, ...props }, ref) => (
+/** @param {{ className?: string, children?: React.ReactNode }} props */
+const DialogDescription = React.forwardRef(({ className, children, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
-    {...props} />
+    {...props}>
+    {children}
+  </DialogPrimitive.Description>
 ))
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
