@@ -11,13 +11,16 @@ import { Separator } from "@/components/ui/separator";
 import { ChevronLeft, Info, BarChart2, ShieldCheck, Activity } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
-const MetricCard = ({ label, value, type = 'number', unit = '', icon = null, delay = 0 }) => {
-    const formattedValue = useMemo(() => {
-        if (value === null || value === undefined) return '—';
-        if (type === 'percentage') return (Number(value) * 100).toFixed(2) + '%';
-        if (type === 'currency') return '₹' + Number(value).toLocaleString('en-IN');
-        return Number(value).toFixed(2);
-    }, [value, type]);
+const MetricCard = ({ label, value, catValue = null, type = 'number', unit = '', icon = null, delay = 0 }) => {
+    const format = (val) => {
+        if (val === null || val === undefined || isNaN(Number(val))) return '—';
+        if (type === 'percentage') return (Number(val) * 100).toFixed(2) + '%';
+        if (type === 'currency') return '₹' + Number(val).toLocaleString('en-IN');
+        return Number(val).toFixed(2);
+    };
+
+    const formattedValue = format(value);
+    const formattedCatValue = catValue !== null ? format(catValue) : null;
 
     const isPositive = type === 'percentage' && Number(value) > 0;
     const isNegative = type === 'percentage' && Number(value) < 0;
@@ -30,23 +33,33 @@ const MetricCard = ({ label, value, type = 'number', unit = '', icon = null, del
             className="h-full"
         >
             <Card className="h-full border-border/50 shadow-none hover:border-primary/20 hover:shadow-sm transition-all overflow-hidden rounded-xl bg-card">
-                <CardHeader className="pb-2 p-4">
+                <CardHeader className="pb-1 p-4">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</span>
                         <div className="text-primary/20">
-                            {icon || <Activity className="w-4 h-4" />}
+                            {icon || <Activity className="w-3.5 h-3.5" />}
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                     <div className={cn(
-                        "text-2xl font-bold tracking-tight",
+                        "text-xl font-black tracking-tight flex items-baseline flex-wrap gap-x-2",
                         isPositive && "text-emerald-600 dark:text-emerald-500",
                         isNegative && "text-rose-600 dark:text-rose-500",
                         !isPositive && !isNegative && "text-foreground"
                     )}>
-                        {formattedValue}<span className="text-base font-normal text-muted-foreground ml-0.5">{unit}</span>
+                        <span>{formattedValue}{unit}</span>
+                        {formattedCatValue && (
+                            <span className="text-sm font-bold text-muted-foreground/50">
+                                / {formattedCatValue}
+                            </span>
+                        )}
                     </div>
+                    {formattedCatValue && (
+                        <div className="text-[9px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tighter">
+                            Category Average: {formattedCatValue}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </motion.div>
@@ -59,6 +72,162 @@ const IdentityItem = ({ label, value }) => (
         <span className="text-sm font-semibold text-foreground text-right max-w-[60%] truncate">{value || '—'}</span>
     </div>
 );
+
+const PerformanceTable = ({ title, columns, data, highlightEmerald = false }) => (
+    <Card className="border-border/60 shadow-none rounded-xl overflow-hidden bg-card">
+        <CardHeader className="p-5 pb-3 border-b border-border/40 bg-muted/20">
+            <CardTitle className="text-sm font-bold tracking-tight text-foreground">{title}</CardTitle>
+        </CardHeader>
+        <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr className="bg-muted/30 border-b border-border/40">
+                        {columns.map((col, i) => (
+                            <th key={i} className={cn(
+                                "text-[10px] font-black uppercase tracking-widest text-muted-foreground py-3 px-4",
+                                i > 0 && "text-right"
+                            )}>
+                                {col}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((row, i) => (
+                        <tr key={i} className="border-b border-border/20 last:border-0 hover:bg-muted/10 transition-colors">
+                            <td className="py-3 px-4 text-xs font-bold text-foreground">{row.period || row.year}</td>
+                            <td className={cn(
+                                "py-3 px-4 text-xs font-bold text-right",
+                                Number(row.absolute) > 0 ? "text-emerald-600" : Number(row.absolute) < 0 ? "text-rose-600" : "text-muted-foreground"
+                            )}>
+                                {row.absolute !== null && row.absolute !== undefined && !isNaN(Number(row.absolute)) ? `${Number(row.absolute).toFixed(2)}%` : '--'}
+                            </td>
+                            {row.hasOwnProperty('annualized') && (
+                                <td className={cn(
+                                    "py-3 px-4 text-xs font-bold text-right",
+                                    Number(row.annualized) > 0 ? "text-emerald-600" : Number(row.annualized) < 0 ? "text-rose-600" : "text-muted-foreground"
+                                )}>
+                                    {row.annualized !== null && row.annualized !== undefined && !isNaN(Number(row.annualized)) ? `${Number(row.annualized).toFixed(2)}%` : '--'}
+                                </td>
+                            )}
+                            <td className="py-3 px-4 text-xs font-bold text-right text-emerald-600/70">
+                                {row.catAvg !== null && row.catAvg !== undefined && !isNaN(Number(row.catAvg)) ? `${Number(row.catAvg).toFixed(2)}%` : '--'}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </Card>
+);
+
+const AboutSection = ({ master }) => {
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '—';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="border-b border-border/80 pb-2">
+                <h2 className="text-xl font-black uppercase tracking-tighter text-foreground">About</h2>
+            </div>
+
+            <div className="space-y-6">
+                <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr] items-start gap-4">
+                    <div className="space-y-1">
+                        <span className="text-sm font-black text-foreground">Fund Manager(s)</span>
+                        <div>
+                            <button className="text-[10px] font-bold text-blue-600 hover:text-blue-700 underline underline-offset-2">Check History</button>
+                        </div>
+                    </div>
+                    <span className="text-sm font-bold text-muted-foreground/80 leading-relaxed">
+                        {master?.fund_manager || 'Institutional Team'}
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr] items-center gap-4 py-4 border-y border-border/40">
+                    <span className="text-sm font-black text-foreground">Launch Date</span>
+                    <span className="text-sm font-bold text-muted-foreground/80">
+                        {formatDate(master?.launch_date)}
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr] items-center gap-4 border-b border-border/40 pb-4">
+                    <span className="text-sm font-black text-foreground">Benchmark</span>
+                    <span className="text-sm font-bold text-muted-foreground/80">
+                        {master?.benchmark || 'Nifty 50 TR INR'}
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr] items-start gap-4">
+                    <span className="text-sm font-black text-foreground">Objective</span>
+                    <p className="text-xs font-bold text-muted-foreground/60 leading-relaxed italic max-w-3xl">
+                        {master?.objective || 'Information currently being indexed...'}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const FundamentalsTable = ({ metrics, catAvg }) => {
+    const rows = [
+        { label: 'PE', value: metrics?.pe_ratio, cat: catAvg?.pe_ratio, type: 'number' },
+        { label: 'PB', value: metrics?.pb_ratio, cat: catAvg?.pb_ratio, type: 'number' },
+        { label: 'Price/Sale', value: metrics?.price_to_sales, cat: catAvg?.price_to_sales, type: 'number' },
+        { label: 'Price/Cash Flow', value: metrics?.price_to_cash_flow, cat: catAvg?.price_to_cash_flow, type: 'number' },
+        { label: 'Dividend Yield', value: metrics?.dividend_yield, cat: catAvg?.dividend_yield, type: 'percentage' },
+        { label: 'Sales Growth', value: metrics?.sales_growth, cat: catAvg?.sales_growth, type: 'percentage' },
+    ];
+
+    const format = (val, type) => {
+        if (val === null || val === undefined || isNaN(Number(val))) return '—';
+        if (type === 'percentage') return (Number(val) * 100).toFixed(2) + '%';
+        return Number(val).toFixed(2);
+    };
+
+    return (
+        <Card className="border-border/60 shadow-none rounded-xl overflow-hidden bg-card">
+            <CardHeader className="p-5 pb-3 border-b border-border/40 bg-muted/10">
+                <CardTitle className="text-sm font-black uppercase tracking-widest text-foreground">Fundamentals</CardTitle>
+            </CardHeader>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-muted/5 border-b border-border/40">
+                            <th className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-6">Measures</th>
+                            <th className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-6 text-right">Fund</th>
+                            <th className="text-[10px] font-black uppercase tracking-widest text-muted-foreground py-4 px-4 text-right">Category Average</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((row, i) => (
+                            <tr key={i} className="border-b border-border/10 last:border-0 hover:bg-muted/5 transition-colors">
+                                <td className="py-4 px-6 text-xs font-black text-foreground">{row.label}</td>
+                                <td className="py-4 px-6 text-xs font-black text-right text-emerald-600">
+                                    {format(row.value, row.type)}
+                                </td>
+                                <td className="py-4 px-4 text-xs font-bold text-right text-emerald-600/60">
+                                    {format(row.cat, row.type)}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </Card>
+    );
+};
 
 export default function FundDetailsPage() {
     const { schemeCode } = useParams();
@@ -201,35 +370,98 @@ export default function FundDetailsPage() {
                     </Card>
                 </div>
 
-                {/* Performance Analytics Grid */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-                        <BarChart2 className="w-4 h-4 text-primary" />
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Performance Snapshot</h3>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        <MetricCard label="1Y Returns" value={metrics?.return_1y} type="percentage" delay={0.1} />
-                        <MetricCard label="3Y CAGR" value={metrics?.return_3y} type="percentage" delay={0.2} />
-                        <MetricCard label="5Y CAGR" value={metrics?.return_5y} type="percentage" delay={0.3} />
-                        <MetricCard label="10Y CAGR" value={metrics?.return_10y} type="percentage" delay={0.4} />
-                        <MetricCard label="Since Inception" value={metrics?.cagr} type="percentage" delay={0.5} />
-                    </div>
-                </div>
-
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                         <ShieldCheck className="w-4 h-4 text-primary" />
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Risk Metrics</h3>
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Advanced Risk Metrics</h3>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <MetricCard label="Standard Deviation" value={metrics?.std_dev} type="number" delay={0.1} />
-                        <MetricCard label="Beta" value={metrics?.beta} type="number" delay={0.2} />
-                        <MetricCard label="Alpha" value={metrics?.alpha} type="percentage" delay={0.3} />
-                        <MetricCard label="Sharpe Ratio" value={metrics?.sharpe} type="number" delay={0.4} />
-                        <MetricCard label="Sortino Ratio" value={metrics?.sortino} type="number" delay={0.5} />
-                        <MetricCard label="Max Drawdown" value={metrics?.max_drawdown} type="percentage" delay={0.6} />
-                        <MetricCard label="Downside Risk" value={metrics?.downside_risk} type="percentage" delay={0.7} />
-                        <MetricCard label="1Y Rolling Avg" value={metrics?.rolling_return_1y_avg} type="percentage" delay={0.8} />
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {/* New Benchmarked Metrics */}
+                        <MetricCard label="AUM (Crs.)" value={master?.aum} type="number" delay={0.1} />
+                        <MetricCard label="Expense Ratio" value={master?.expense_ratio} type="percentage" delay={0.15} />
+                        <MetricCard
+                            label="Sharpe / Category"
+                            value={metrics?.sharpe}
+                            catValue={data?.category_averages?.sharpe}
+                            type="number" delay={0.2}
+                        />
+                        <MetricCard
+                            label="SD / Category"
+                            value={metrics?.std_dev}
+                            catValue={data?.category_averages?.std_dev}
+                            type="number" delay={0.25}
+                        />
+                        <MetricCard
+                            label="Beta / Category"
+                            value={metrics?.beta}
+                            catValue={data?.category_averages?.beta}
+                            type="number" delay={0.3}
+                        />
+                        <MetricCard
+                            label="Turnover / Category"
+                            value={metrics?.portfolio_turnover}
+                            catValue={data?.category_averages?.portfolio_turnover}
+                            type="percentage" delay={0.35}
+                        />
+
+                        {/* Restored Original Risk Metrics */}
+                        <MetricCard label="Alpha" value={metrics?.alpha} type="percentage" delay={0.4} />
+                        <MetricCard label="Sortino Ratio" value={metrics?.sortino} type="number" delay={0.45} />
+                        <MetricCard label="Max Drawdown" value={metrics?.max_drawdown} type="percentage" delay={0.5} />
+                        <MetricCard label="Downside Risk" value={metrics?.downside_risk} type="percentage" delay={0.55} />
+                        <MetricCard label="1Y Rolling Avg" value={metrics?.rolling_return_1y_avg} type="percentage" delay={0.6} />
+                    </div>
+                </div>
+
+                {/* Fundamentals Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                        <Activity className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Portfolio Fundamentals</h3>
+                    </div>
+                    <FundamentalsTable metrics={metrics} catAvg={data?.category_averages} />
+                </div>
+
+                {/* Performance Section with High-Precision Tables */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                        <BarChart2 className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Performance</h3>
+                    </div>
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        {/* Absolute and Annualised Returns */}
+                        <PerformanceTable
+                            title="Absolute and Annualised Returns"
+                            columns={['Period', 'Absolute(%)', 'Annualised(%)', 'Category Average(%)']}
+                            data={[
+                                { period: '1 Week', absolute: metrics?.return_1w, annualized: null, catAvg: data?.category_averages?.return_1w },
+                                { period: '1 Month', absolute: metrics?.return_1m, annualized: null, catAvg: data?.category_averages?.return_1m },
+                                { period: '3 Month', absolute: metrics?.return_3m, annualized: null, catAvg: data?.category_averages?.return_3m },
+                                { period: '6 Month', absolute: metrics?.return_6m, annualized: null, catAvg: data?.category_averages?.return_6m },
+                                { period: 'YTD', absolute: metrics?.return_ytd, annualized: null, catAvg: data?.category_averages?.return_ytd },
+                                { period: '1 Year', absolute: metrics?.return_1y_abs || (metrics?.return_1y * 1.0), annualized: metrics?.return_1y, catAvg: data?.category_averages?.return_1y },
+                                { period: '2 Years', absolute: metrics?.return_2y_abs, annualized: metrics?.return_2y, catAvg: data?.category_averages?.return_2y },
+                                { period: '3 Years', absolute: metrics?.return_3y_abs, annualized: metrics?.return_3y, catAvg: data?.category_averages?.return_3y },
+                                { period: '5 Years', absolute: metrics?.return_5y_abs, annualized: metrics?.return_5y, catAvg: data?.category_averages?.return_5y },
+                                { period: '7 Years', absolute: metrics?.return_7y_abs, annualized: metrics?.return_7y, catAvg: data?.category_averages?.return_7y },
+                                { period: '10 Years', absolute: metrics?.return_10y_abs, annualized: metrics?.return_10y, catAvg: data?.category_averages?.return_10y },
+                            ]}
+                        />
+
+                        {/* Yearly Returns */}
+                        <PerformanceTable
+                            title="Yearly Returns"
+                            columns={['Period', 'Absolute(%)', 'Category Average(%)']}
+                            data={metrics?.calendar_returns ? [...metrics.calendar_returns].reverse().map(yr => {
+                                const catYear = data?.category_averages?.calendar_returns?.find(cy => cy.year === yr.year);
+                                const catAvg = catYear ? catYear.return * 100 : null;
+                                return {
+                                    year: yr.year,
+                                    absolute: (yr.return * 100),
+                                    catAvg: catAvg
+                                };
+                            }) : []}
+                        />
                     </div>
                 </div>
 
@@ -280,9 +512,6 @@ export default function FundDetailsPage() {
                                             {metrics?.consistency_score ? (metrics.consistency_score * 100).toFixed(0) : '—'}<span className="text-xl ml-0.5 opacity-60">%</span>
                                         </div>
                                     </div>
-                                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg font-bold backdrop-blur-sm shadow-inner">
-                                        #{metrics?.category_rank || '—'}
-                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -322,78 +551,6 @@ export default function FundDetailsPage() {
                         </Card>
                     </div>
 
-                    {/* Bottom Row: 3 Boxes (Calendar, Monthly, Registry) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-
-                        {/* Box 1: Calendar Returns */}
-                        <Card className="rounded-xl border-border/60 shadow-sm h-full">
-                            <CardHeader className="p-5 pb-3">
-                                <div className="flex justify-between items-center">
-                                    <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Calendar Returns</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-5 pt-0 space-y-2">
-                                {metrics?.calendar_returns?.slice(-5).reverse().map(yr => (
-                                    <div key={yr.year} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg group border border-transparent hover:border-border/50 transition-colors">
-                                        <span className="font-semibold text-xs text-muted-foreground">{yr.year}</span>
-                                        <span className={cn(
-                                            "font-bold text-sm",
-                                            yr.return > 0 ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"
-                                        )}>
-                                            {(Number(yr.return) * 100).toFixed(2)}%
-                                        </span>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-
-                        {/* Box 2: Monthly Performance */}
-                        <Card className="rounded-xl border-border/60 shadow-sm h-full">
-                            <CardHeader className="p-5 pb-3">
-                                <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Monthly Performance</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-5 pt-0 grid grid-cols-3 gap-2">
-                                {metrics?.monthly_returns?.slice(-12).map((mth, i) => (
-                                    <div key={i} className="flex flex-col items-center justify-center p-2 rounded-lg border border-border/40 bg-card hover:bg-muted/50 transition-colors">
-                                        <span className="text-[10px] font-bold text-muted-foreground mb-1">
-                                            {['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][mth.month - 1]} '{mth.year.toString().slice(-2)}
-                                        </span>
-                                        <span className={cn(
-                                            "text-xs font-bold",
-                                            mth.return > 0 ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"
-                                        )}>
-                                            {(Number(mth.return) * 100).toFixed(1)}%
-                                        </span>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-
-                        {/* Box 3: Registry Info */}
-                        <Card className="rounded-xl border-border/60 shadow-sm h-full">
-                            <CardHeader className="pb-3 p-5">
-                                <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-widest text-primary">
-                                    <ShieldCheck className="w-4 h-4 mr-2" />
-                                    Registry verification
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-5 pt-0 space-y-3">
-                                {[
-                                    ['ISIN (Growth)', master?.isin_growth],
-                                    ['Scheme code', master?.scheme_code],
-                                    ['Regulatory registry', 'AMFI India / SEBI'],
-                                    ['Settlement', 'T+2 Institutional'],
-                                    ['Execution', 'Direct / Zero-Comm']
-                                ].map(([label, val]) => (
-                                    <div key={label} className="flex justify-between items-center text-sm group">
-                                        <span className="text-muted-foreground font-bold text-xs">{label}</span>
-                                        <span className="font-bold text-foreground truncate max-w-[150px] text-xs">{val || '—'}</span>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-
-                    </div>
 
                 </div>
 
