@@ -12,6 +12,7 @@ import { History, Sparkles, AlertCircle, Plus } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import ComplianceModal from '@/components/modals/ComplianceModal';
 import {
     Tooltip,
     TooltipContent,
@@ -59,7 +60,8 @@ export default function AssistantPage() {
     }
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="flex h-screen bg-background overflow-hidden relative">
+            <ComplianceModal />
             {/* Navigation Sidebar */}
             <Sidebar />
 
@@ -115,10 +117,10 @@ export default function AssistantPage() {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
                                     {[
-                                        "Top 3 Small Cap funds",
-                                        "Balanced Advantage funds for 5 year SIP",
-                                        "Compare Index Funds vs Active Large Cap",
-                                        "Suggest a portfolio for aggressive growth"
+                                        "List Small Cap funds with 5Y CAGR > 15%",
+                                        "Show Liquid funds with Expense Ratio < 0.2%",
+                                        "List Large Cap funds with AUM > 5000 Crs",
+                                        "Show Hybrid funds with lowest Max Drawdown"
                                     ].map((suggested, idx) => (
                                         <Button
                                             key={idx}
