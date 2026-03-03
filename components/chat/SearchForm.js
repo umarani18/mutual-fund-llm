@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useCompliance } from '@/context/ComplianceContext';
-import { ShieldCheck, SendHorizonal, Settings } from 'lucide-react';
+import { ShieldCheck, SendHorizonal, Settings, Square } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ComplianceModal from '@/components/chat/ComplianceModal';
 
-export default function SearchForm({ onSearch, loading }) {
+export default function SearchForm({ onSearch, onStop, loading }) {
     const [input, setInput] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const {
@@ -69,14 +69,25 @@ export default function SearchForm({ onSearch, loading }) {
                             </button>
                         </div>
 
-                        <Button
-                            type="submit"
-                            size="icon"
-                            disabled={loading || !input.trim()}
-                            className="rounded-full w-9 h-9 shadow-md hover:shadow-primary/20 hover:scale-105 active:scale-95 transition-all bg-primary text-primary-foreground"
-                        >
-                            <SendHorizonal className="h-4 w-4" />
-                        </Button>
+                        {loading ? (
+                            <Button
+                                type="button"
+                                size="icon"
+                                onClick={onStop}
+                                className="rounded-full w-9 h-9 shadow-md hover:bg-destructive hover:text-destructive-foreground transition-all bg-muted text-foreground"
+                            >
+                                <Square className="h-4 w-4 fill-current" />
+                            </Button>
+                        ) : (
+                            <Button
+                                type="submit"
+                                size="icon"
+                                disabled={!input.trim()}
+                                className="rounded-full w-9 h-9 shadow-md hover:shadow-primary/20 hover:scale-105 active:scale-95 transition-all bg-primary text-primary-foreground"
+                            >
+                                <SendHorizonal className="h-4 w-4" />
+                            </Button>
+                        )}
                     </div>
                 </form>
 

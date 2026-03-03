@@ -33,7 +33,8 @@ export default function AssistantPage() {
         loadChat,
         deleteChat,
         clearAllHistory,
-        messagesEndRef
+        messagesEndRef,
+        stopRequest
     } = useChat();
 
     const [showHistory, setShowHistory] = useState(true);
@@ -162,7 +163,7 @@ export default function AssistantPage() {
 
                 {/* Lower Input Section */}
                 <div className="z-30">
-                    <SearchForm onSearch={sendMessage} loading={chatLoading} />
+                    <SearchForm onSearch={sendMessage} onStop={stopRequest} loading={chatLoading} />
                 </div>
             </main>
 

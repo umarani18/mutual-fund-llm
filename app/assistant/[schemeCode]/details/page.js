@@ -372,6 +372,50 @@ export default function FundDetailsPage() {
 
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                        <BarChart2 className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Return Performance (CAGR)</h3>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                        <MetricCard
+                            label="1Y CAGR"
+                            value={metrics?.return_1y != null ? metrics.return_1y / 100 : null}
+                            catValue={data?.category_averages?.return_1y != null ? data.category_averages.return_1y / 100 : null}
+                            type="percentage"
+                            delay={0.05}
+                        />
+                        <MetricCard
+                            label="3Y CAGR"
+                            value={metrics?.return_3y != null ? metrics.return_3y / 100 : null}
+                            catValue={data?.category_averages?.return_3y != null ? data.category_averages.return_3y / 100 : null}
+                            type="percentage"
+                            delay={0.1}
+                        />
+                        <MetricCard
+                            label="5Y CAGR"
+                            value={metrics?.return_5y != null ? metrics.return_5y / 100 : null}
+                            catValue={data?.category_averages?.return_5y != null ? data.category_averages.return_5y / 100 : null}
+                            type="percentage"
+                            delay={0.15}
+                        />
+                        <MetricCard
+                            label="10Y CAGR"
+                            value={metrics?.return_10y != null ? metrics.return_10y / 100 : null}
+                            catValue={data?.category_averages?.return_10y != null ? data.category_averages.return_10y / 100 : null}
+                            type="percentage"
+                            delay={0.2}
+                        />
+                        <MetricCard
+                            label="SI CAGR"
+                            value={metrics?.cagr}
+                            catValue={data?.category_averages?.cagr}
+                            type="percentage"
+                            delay={0.25}
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                         <ShieldCheck className="w-4 h-4 text-primary" />
                         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Advanced Risk Metrics</h3>
                     </div>

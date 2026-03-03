@@ -13,9 +13,18 @@ export const useChat = () => {
     const [chatList, setChatList] = useState([]);
     const { effectiveModules } = useCompliance();
     const messagesEndRef = useRef(null);
+    const abortControllerRef = useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const stopRequest = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -24,10 +33,12 @@ export const useChat = () => {
 
     useEffect(() => {
         loadChatHistory();
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
     }, []);
-
-    // Auto-restore removed to force new session on refresh
-
 
     const loadChatHistory = async () => {
         try {
@@ -112,6 +123,9 @@ export const useChat = () => {
         setMessages(prev => [...prev, newUserMessage]);
         setLoading(true);
 
+        // Create new AbortController for this request
+        abortControllerRef.current = new AbortController();
+
         try {
             let chatId = currentChatId;
             // If no active chat, create one automatically
@@ -128,7 +142,12 @@ export const useChat = () => {
                 }
             }
 
-            const data = await chatApi.sendMessage(userPrompt, chatId, effectiveModules);
+            const data = await chatApi.sendMessage(
+                userPrompt,
+                chatId,
+                effectiveModules,
+                abortControllerRef.current.signal
+            );
             console.log('📡 [DEBUG] Backend Response Received:', data);
 
             if (data.status === 'success') {
@@ -146,14 +165,23 @@ export const useChat = () => {
                 }]);
             }
         } catch (err) {
-            setError(err.message || 'Error connecting to backend. Please try again.');
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: err.message || 'Connection failed'
-            }]);
-            console.error('Chat Error:', err);
+            if (err.name === 'AbortError') {
+                console.log('Chat request aborted');
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: 'Request stopped by user.'
+                }]);
+            } else {
+                setError(err.message || 'Error connecting to backend. Please try again.');
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: err.message || 'Connection failed'
+                }]);
+                console.error('Chat Error:', err);
+            }
         } finally {
             setLoading(false);
+            abortControllerRef.current = null;
         }
     };
 
@@ -161,9 +189,6 @@ export const useChat = () => {
         setMessages([]);
         setError('');
     };
-
-    // Persistence removed to ensure refresh starts new session
-
 
     return {
         messages,
@@ -173,6 +198,7 @@ export const useChat = () => {
         chatList,
         currentChatId,
         sendMessage,
+        stopRequest,
         clearChat,
         startNewChat,
         loadChat,
