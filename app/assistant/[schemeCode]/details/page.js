@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { fundApi } from '@/lib/api';
+import { fundApi, analyticsApi } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, Info, BarChart2, ShieldCheck, Activity } from 'lucide-react';
+import { ChevronLeft, Info, BarChart2, ShieldCheck, Activity, TrendingUp } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const MetricCard = ({ label, value, catValue = null, type = 'number', unit = '', icon = null, delay = 0 }) => {
@@ -16,6 +16,7 @@ const MetricCard = ({ label, value, catValue = null, type = 'number', unit = '',
         if (val === null || val === undefined || isNaN(Number(val))) return '—';
         if (type === 'percentage') return (Number(val) * 100).toFixed(2) + '%';
         if (type === 'currency') return '₹' + Number(val).toLocaleString('en-IN');
+        if (type === 'crore') return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
         return Number(val).toFixed(2);
     };
 
@@ -51,13 +52,18 @@ const MetricCard = ({ label, value, catValue = null, type = 'number', unit = '',
                         <span>{formattedValue}{unit}</span>
                         {formattedCatValue && (
                             <span className="text-sm font-bold text-muted-foreground/50">
-                                / {formattedCatValue}
+                                / {formattedCatValue}{unit}
                             </span>
                         )}
                     </div>
                     {formattedCatValue && (
                         <div className="text-[9px] font-bold text-muted-foreground/40 mt-1 uppercase tracking-tighter">
-                            Category Average: {formattedCatValue}
+                            Category Average: {formattedCatValue}{unit}
+                        </div>
+                    )}
+                    {type === 'crore' && (
+                        <div className="text-[8px] font-bold text-muted-foreground/30 mt-1 uppercase tracking-tighter truncate">
+                            Valuation: Daily Estimate
                         </div>
                     )}
                 </CardContent>
@@ -230,21 +236,44 @@ const FundamentalsTable = ({ metrics, catAvg }) => {
 };
 
 export default function FundDetailsPage() {
+    const ROLLING_PERIOD_OPTIONS = ['1M', '2M', '3M', '6M', '1Y', '3Y', '5Y', '10Y'];
     const { schemeCode } = useParams();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [data, setData] = useState(null);
     const [timeRange, setTimeRange] = useState('1Y');
+    const [rollingApiData, setRollingApiData] = useState(null);
+    const [rollingPeriod, setRollingPeriod] = useState('3Y');
+    const [rollingLoading, setRollingLoading] = useState(false);
+    const [benchmarkApiData, setBenchmarkApiData] = useState(null);
+
+    const rollingPayload = (periodLabel) => {
+        const p = String(periodLabel || '3Y').toUpperCase();
+        if (p.endsWith('M')) {
+            const months = Number(p.slice(0, -1));
+            return { rolling_period_months: Number.isFinite(months) ? months : 3, rolling_period_label: p };
+        }
+        const years = Number(p.slice(0, -1));
+        return { rolling_period_years: Number.isFinite(years) ? years : 3, rolling_period_label: p };
+    };
 
     useEffect(() => {
         let active = true;
         async function load() {
             try {
                 setLoading(true);
-                const res = await fundApi.getFundMetrics(schemeCode);
+                const [res, benchRes] = await Promise.allSettled([
+                    fundApi.getFundMetrics(schemeCode),
+                    analyticsApi.getBenchmarkOutperformance({ fund_id: schemeCode, frequency: "annual" }),
+                ]);
                 if (active) {
-                    setData(res);
+                    if (res.status === 'fulfilled') {
+                        setData(res.value);
+                    } else {
+                        throw res.reason;
+                    }
+                    setBenchmarkApiData(benchRes.status === 'fulfilled' ? benchRes.value : null);
                     setError('');
                 }
             } catch (err) {
@@ -256,6 +285,27 @@ export default function FundDetailsPage() {
         load();
         return () => { active = false; };
     }, [schemeCode]);
+
+    useEffect(() => {
+        let active = true;
+        async function loadRolling() {
+            try {
+                setRollingLoading(true);
+                const res = await analyticsApi.getRollingReturn({
+                    fund_id: schemeCode,
+                    frequency: "daily",
+                    ...rollingPayload(rollingPeriod),
+                });
+                if (active) setRollingApiData(res);
+            } catch (_) {
+                if (active) setRollingApiData(null);
+            } finally {
+                if (active) setRollingLoading(false);
+            }
+        }
+        loadRolling();
+        return () => { active = false; };
+    }, [schemeCode, rollingPeriod]);
 
     const master = data?.fund_master;
     const metrics = data?.fund_metrics;
@@ -421,8 +471,21 @@ export default function FundDetailsPage() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {/* New Benchmarked Metrics */}
-                        <MetricCard label="AUM (Crs.)" value={master?.aum} type="number" delay={0.1} />
-                        <MetricCard label="Expense Ratio" value={master?.expense_ratio} type="percentage" delay={0.15} />
+                        <MetricCard
+                            label={`AUM (Cr) ${master?.aum_date ? `• ${master.aum_date}` : ''}`}
+                            value={master?.aum}
+                            type="crore"
+                            delay={0.1}
+                            icon={<BarChart2 className="w-3 h-3" />}
+                        />
+                        <MetricCard
+                            label="Expense Ratio / Category"
+                            value={master?.expense_ratio}
+                            catValue={data?.category_averages?.expense_ratio}
+                            type="number"
+                            unit="%"
+                            delay={0.15}
+                        />
                         <MetricCard
                             label="Sharpe / Category"
                             value={metrics?.sharpe}
@@ -445,7 +508,9 @@ export default function FundDetailsPage() {
                             label="Turnover / Category"
                             value={metrics?.portfolio_turnover}
                             catValue={data?.category_averages?.portfolio_turnover}
-                            type="percentage" delay={0.35}
+                            type="number"
+                            unit="%"
+                            delay={0.35}
                         />
 
                         {/* Restored Original Risk Metrics */}
@@ -454,6 +519,44 @@ export default function FundDetailsPage() {
                         <MetricCard label="Max Drawdown" value={metrics?.max_drawdown} type="percentage" delay={0.5} />
                         <MetricCard label="Downside Risk" value={metrics?.downside_risk} type="percentage" delay={0.55} />
                         <MetricCard label="1Y Rolling Avg" value={metrics?.rolling_return_1y_avg} type="percentage" delay={0.6} />
+                    </div>
+                </div>
+
+                {/* Phase 2: Analytics API Widgets */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                        <TrendingUp className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Live Analytics Engine</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Card className="p-4 border-border/60">
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Rolling Engine ({rollingPeriod})</div>
+                                <select
+                                    value={rollingPeriod}
+                                    onChange={(e) => setRollingPeriod(e.target.value)}
+                                    className="h-7 rounded border border-border/60 bg-background px-2 text-[10px] font-bold tracking-wide"
+                                >
+                                    {ROLLING_PERIOD_OPTIONS.map((p) => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            {rollingLoading && <div className="mb-2 text-[10px] font-semibold text-muted-foreground">Updating...</div>}
+                            <div className="space-y-1 text-sm font-medium">
+                                <div>Mean: <span className="font-mono">{rollingApiData?.metrics?.mean_rolling_return?.toFixed?.(4) ?? '—'}</span></div>
+                                <div>Median: <span className="font-mono">{rollingApiData?.metrics?.median_rolling_return?.toFixed?.(4) ?? '—'}</span></div>
+                                <div>Consistency: <span className="font-mono">{rollingApiData?.metrics?.consistency_score?.toFixed?.(4) ?? '—'}</span></div>
+                            </div>
+                        </Card>
+                        <Card className="p-4 border-border/60">
+                            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Benchmark Engine</div>
+                            <div className="space-y-1 text-sm font-medium">
+                                <div>Excess: <span className="font-mono">{benchmarkApiData?.metrics?.excess_return?.toFixed?.(4) ?? '—'}</span></div>
+                                <div>Alpha: <span className="font-mono">{benchmarkApiData?.metrics?.alpha?.toFixed?.(4) ?? '—'}</span></div>
+                                <div>Outperf Ratio: <span className="font-mono">{benchmarkApiData?.metrics?.outperformance_ratio?.toFixed?.(4) ?? '—'}</span></div>
+                            </div>
+                        </Card>
                     </div>
                 </div>
 

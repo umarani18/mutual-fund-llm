@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { fundApi } from '@/lib/api';
+import { fundApi, analyticsApi } from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, Info, Activity, ShieldCheck, BarChart2, Check, ExternalLink, TrendingUp, Calendar } from 'lucide-react';
@@ -425,10 +425,21 @@ function CompareFundsPageContent() {
         async function fetchAllFunds() {
             setLoading(true);
             try {
-                const results = await Promise.all(
-                    fundCodes.map(code => fundApi.getFundMetrics(code).catch(e => null))
-                );
+                const compareRes = await analyticsApi.compareFunds({
+                    fund_ids: fundCodes,
+                    period: "5Y",
+                    metrics: ["cagr", "sharpe_ratio", "standard_deviation", "expense_ratio", "aum", "max_drawdown"],
+                });
 
+                if (compareRes?.status === 'success' && Array.isArray(compareRes.funds) && compareRes.funds.length > 0) {
+                    setFundsData(compareRes.funds);
+                    return;
+                }
+
+                // Fallback path: per-fund metrics fetch
+                const results = await Promise.all(
+                    fundCodes.map(code => fundApi.getFundMetrics(code).catch(() => null))
+                );
                 const validResults = results.filter(r => r !== null);
                 if (validResults.length === 0) setError('Failed to fetch data');
                 else setFundsData(validResults);
@@ -557,7 +568,27 @@ function CompareFundsPageContent() {
                             {fundsData.map((data, idx) => (
                                 <div key={idx} className="p-4 flex items-center text-sm font-bold">
                                     <span className={getReturnColor(data.fund_metrics.return_5y)}>
-                                        {(data.fund_metrics.return_5y * 100).toFixed(2)}%
+                                        {data.fund_metrics.return_5y != null ? (data.fund_metrics.return_5y * 100).toFixed(2) + '%' : '—'}
+                                    </span>
+                                </div>
+                            ))}
+                        </MetricRow>
+
+                        <MetricRow label="10 Year CAGR">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-sm font-bold">
+                                    <span className={getReturnColor(data.fund_metrics.return_10y)}>
+                                        {data.fund_metrics.return_10y != null ? (data.fund_metrics.return_10y * 100).toFixed(2) + '%' : '—'}
+                                    </span>
+                                </div>
+                            ))}
+                        </MetricRow>
+
+                        <MetricRow label="Period CAGR (Aligned)">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-sm font-bold">
+                                    <span className={getReturnColor(data.fund_metrics.cagr)}>
+                                        {data.fund_metrics.cagr != null ? (data.fund_metrics.cagr * 100).toFixed(2) + '%' : '—'}
                                     </span>
                                 </div>
                             ))}
@@ -591,6 +622,14 @@ function CompareFundsPageContent() {
                             ))}
                         </MetricRow>
 
+                        <MetricRow label="Beta">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-sm font-medium font-mono">
+                                    {data.fund_metrics.beta?.toFixed(2) || '—'}
+                                </div>
+                            ))}
+                        </MetricRow>
+
                         <MetricRow label="Jensen's Alpha">
                             {fundsData.map((data, idx) => (
                                 <div key={idx} className="p-4 flex items-center text-sm font-medium">
@@ -612,6 +651,49 @@ function CompareFundsPageContent() {
                         </MetricRow>
 
                         <SectionHeader title="Fund Essentials" icon={Info} />
+
+                        <MetricRow label="Fund House">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-xs font-bold text-foreground">
+                                    {data.fund_master.fund_house || '—'}
+                                </div>
+                            ))}
+                        </MetricRow>
+
+                        <MetricRow label="Sub Category">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-xs font-medium text-muted-foreground">
+                                    {data.fund_master.sub_category || '—'}
+                                </div>
+                            ))}
+                        </MetricRow>
+
+                        <MetricRow label="Benchmark">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-xs font-medium text-muted-foreground leading-relaxed">
+                                    {data.fund_master.benchmark || '—'}
+                                </div>
+                            ))}
+                        </MetricRow>
+
+                        <MetricRow label="Expense Ratio">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex items-center text-sm font-medium font-mono">
+                                    {data.fund_metrics.expense_ratio ? data.fund_metrics.expense_ratio + '%' : '—'}
+                                </div>
+                            ))}
+                        </MetricRow>
+
+                        <MetricRow label="AUM (Cr)">
+                            {fundsData.map((data, idx) => (
+                                <div key={idx} className="p-4 flex flex-col justify-center text-sm font-bold font-mono">
+                                    <span>{data.fund_metrics.aum ? '₹' + Number(data.fund_metrics.aum).toLocaleString('en-IN') : '—'}</span>
+                                    {data.fund_master.aum_date && (
+                                        <span className="text-[9px] text-muted-foreground font-sans uppercase">as of {data.fund_master.aum_date}</span>
+                                    )}
+                                </div>
+                            ))}
+                        </MetricRow>
 
                         <MetricRow label="Fund Manager">
                             {fundsData.map((data, idx) => (

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     MessageSquare,
+    SlidersHorizontal,
     Settings,
     LogOut,
     ChevronLeft,
@@ -28,6 +29,7 @@ import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
     { label: 'Assistant', icon: MessageSquare, href: '/assistant' },
+    { label: 'Screener', icon: SlidersHorizontal, href: '/assistant/screener' },
 ];
 
 export default function Sidebar() {
