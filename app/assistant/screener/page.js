@@ -23,6 +23,17 @@ const METRIC_OPTIONS = [
 
 const OPS = ['>', '<', '>=', '<=', '=', 'between'];
 
+const CATEGORY_OPTIONS = [
+    { value: '', label: 'All Categories' },
+    { value: 'Debt', label: 'Debt' },
+    { value: 'ELSS', label: 'ELSS' },
+    { value: 'Equity', label: 'Equity' },
+    { value: 'Gilt', label: 'Gilt' },
+    { value: 'Hybrid', label: 'Hybrid' },
+    { value: 'Index', label: 'Index' },
+    { value: 'Liquid', label: 'Liquid' }
+];
+
 const DEFAULT_RULE = { metric: 'aum', operator: '>', value: '500' };
 
 const getMetricLabel = (metric) => METRIC_OPTIONS.find((m) => m.value === metric)?.label || metric;
@@ -43,7 +54,7 @@ export default function ScreenerPage() {
     const cagrDescription = result?.observability?.cagr_definition
         || 'CAGR here is annualized over full available history, not 1Y/3Y/5Y point returns.';
 
-    const fmtPct = (v) => (typeof v === 'number' ? `${(v * 100).toFixed(2)}%` : '-');
+    const fmtPct = (v) => (typeof v === 'number' ? `${v.toFixed(2)}%` : '-');
     const fmtNum = (v, digits = 2) => (typeof v === 'number' ? v.toFixed(digits) : '-');
     const fmtAum = (v) => (typeof v === 'number' ? v.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '-');
 
@@ -131,11 +142,15 @@ export default function ScreenerPage() {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                             <div className="space-y-1">
                                 <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Category</div>
-                                <Input
-                                    placeholder="e.g. Equity"
+                                <select
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
-                                />
+                                    className="h-10 rounded-md border border-input bg-background px-3 text-sm w-full"
+                                >
+                                    {CATEGORY_OPTIONS.map((c) => (
+                                        <option key={c.value} value={c.value}>{c.label}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Sort By</div>
@@ -167,7 +182,7 @@ export default function ScreenerPage() {
                                     min={1}
                                     max={500}
                                     value={limit}
-                                    onChange={(e) => setLimit(e.target.value)}
+                                    onChange={(e) => setLimit(Number(e.target.value))}
                                 />
                             </div>
                         </div>
