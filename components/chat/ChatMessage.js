@@ -54,8 +54,25 @@ export default function ChatMessage({ message }) {
                             : "bg-primary text-primary-foreground rounded-tr-none border-transparent"
                     )}>
                         <div className="whitespace-pre-wrap font-medium">
-                            {message.content}
+                            {message.content.includes('--- Financial Education ---') 
+                                ? message.content.split('--- Financial Education ---')[0].trim()
+                                : message.content
+                            }
                         </div>
+
+                        {isAssistant && message.content.includes('--- Financial Education ---') && (
+                            <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-500">
+                                <div className="flex items-center gap-2 mb-2 text-primary">
+                                    <div className="p-1 px-2 rounded-md bg-primary/10">
+                                        <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Educational Insight</span>
+                                    </div>
+                                    <div className="h-[1px] flex-grow bg-primary/10"></div>
+                                </div>
+                                <p className="text-xs font-bold leading-relaxed text-foreground/80 italic">
+                                    {message.content.split('--- Financial Education ---')[1].trim()}
+                                </p>
+                            </div>
+                        )}
 
                         {isAssistant && message.type === 'quant_analysis' && (
                             <div className="mt-3 pt-3 border-t border-border">
