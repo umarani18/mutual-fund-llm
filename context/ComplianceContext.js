@@ -12,12 +12,12 @@ export const ALL_RULES = [
     { id: 5, name: 'Period Alignment', desc: 'Cross-metric time window matching', mandatory: true },
     { id: 6, name: 'NAV Freshness', desc: 'Flag or exclude stale valuations', mandatory: false },
     { id: 7, name: 'Null Exclusion', desc: 'Drop funds with missing critical math', mandatory: true },
-    { id: 8, name: 'AUM Eligibility', desc: 'Filter by Assets Under Management', mandatory: false, restricted: true },
+    { id: 8, name: 'AUM Eligibility', desc: 'Filter by Assets Under Management', mandatory: false },
     { id: 9, name: 'Category Baselines', desc: 'Compute relative statistical means', mandatory: false },
     { id: 10, name: 'Stable Sorting', desc: 'Multi-level deterministic ranking', mandatory: false, restricted: true },
-    { id: 11, name: 'Benchmark Integrity', desc: 'SEBI-mandated index mapping', mandatory: false, restricted: true },
+    { id: 11, name: 'Benchmark Integrity', desc: 'SEBI-mandated index mapping', mandatory: false },
     { id: 12, name: 'Drawdown Filter', desc: 'Maximum allowable loss threshold', mandatory: true },
-    { id: 13, name: 'Volatility Bands', desc: 'Data-driven risk classification', mandatory: false },
+    { id: 13, name: 'Volatility Bands', desc: 'Predefined risk band classification', mandatory: false },
     { id: 14, name: 'Survivorship Bias', desc: 'Historical continuity control', mandatory: false, restricted: true },
     { id: 15, name: 'Ranking Normalization', desc: 'Local subset score scaling (0-100)', mandatory: false, restricted: true },
     { id: 16, name: 'Advisory Blocker', desc: 'Neutralize investment recommendations', mandatory: true },
@@ -34,8 +34,8 @@ export const COMPLIANCE_STACKS = {
     STRICT: {
         id: 'strict',
         label: 'Strict Compliance',
-        modules: [1, 4, 5, 7, 12, 16, 17, 2, 3],
-        description: 'Essential + Category and Plan isolation (AUM Locked).'
+        modules: [1, 4, 5, 7, 12, 16, 17, 2, 3, 8, 11],
+        description: 'Essential + category, plan, AUM, and benchmark integrity checks.'
     },
     FULL_STACK: {
         id: 'full',

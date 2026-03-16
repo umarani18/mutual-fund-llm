@@ -56,7 +56,7 @@ export default function ComplianceModal({ open, onOpenChange }) {
                                 Safety modules (1, 4, 5, 7, 12, 16, 17) use hardcoded logic and cannot be disabled.
                             </p>
                             <p className="text-[10px] font-medium leading-relaxed text-primary/70 italic">
-                                Note: Performance modules (8, 10, 11, 14, 15) are restricted for administrative review.
+                                Note: Only modules 10, 14, and 15 remain restricted for administrative review.
                             </p>
                         </div>
                     </div>
