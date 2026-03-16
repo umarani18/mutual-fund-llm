@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const MetricCard = ({ label, value, catValue = null, type = 'number', unit = '', icon = null, delay = 0 }) => {
     const format = (val) => {
         if (val === null || val === undefined || isNaN(Number(val))) return '—';
-        if (type === 'percentage') return (Number(val) * 100).toFixed(2) + '%';
+        if (type === 'percentage') return Number(val).toFixed(2) + '%';
         if (type === 'currency') return '₹' + Number(val).toLocaleString('en-IN');
         if (type === 'crore') return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
         return Number(val).toFixed(2);
@@ -198,7 +198,7 @@ const FundamentalsTable = ({ metrics, catAvg }) => {
 
     const format = (val, type) => {
         if (val === null || val === undefined || isNaN(Number(val))) return '—';
-        if (type === 'percentage') return (Number(val) * 100).toFixed(2) + '%';
+        if (type === 'percentage') return Number(val).toFixed(2) + '%';
         return Number(val).toFixed(2);
     };
 
@@ -558,15 +558,6 @@ export default function FundDetailsPage() {
                             </div>
                         </Card>
                     </div>
-                </div>
-
-                {/* Fundamentals Section */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-                        <Activity className="w-4 h-4 text-primary" />
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Portfolio Fundamentals</h3>
-                    </div>
-                    <FundamentalsTable metrics={metrics} catAvg={data?.category_averages} />
                 </div>
 
                 {/* Performance Section with High-Precision Tables */}
